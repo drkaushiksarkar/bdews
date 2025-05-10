@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -19,7 +18,7 @@ export function InteractiveMap() {
     dataError
   } = useDashboardContext();
 
-  const [mapUrl, setMapUrl] = useState('https://maps.google.com/maps?q=0,0&hl=en&z=2&t=k&output=embed');
+  const [mapUrl, setMapUrl] = useState('https://maps.google.com/maps?q=world&hl=en&z=2&t=k&output=embed');
   const [currentHotspots, setCurrentHotspots] = useState<string[]>([]);
 
   const forecastBasedHotspotRegions = useMemo(() => {
@@ -78,12 +77,12 @@ export function InteractiveMap() {
     setCurrentHotspots(forecastBasedHotspotRegions);
 
     if (!regionMetadata) {
-      setMapUrl('https://maps.google.com/maps?q=0,0&hl=en&z=2&t=k&output=embed');
+      setMapUrl('https://maps.google.com/maps?q=world&hl=en&z=2&t=k&output=embed');
       return;
     }
 
     let query = '';
-    let zoomLevel = 2; 
+    let zoomLevel = 2;
 
     const validHotspotsForMap = forecastBasedHotspotRegions
       .map(regionName => {
@@ -101,38 +100,35 @@ export function InteractiveMap() {
       .filter(item => item !== null) as { name: string; lat: number; lon: number }[];
 
     if (validHotspotsForMap.length > 0) {
+      const firstHotspot = validHotspotsForMap[0];
+      query = `${firstHotspot.lat},${firstHotspot.lon}(${encodeURIComponent(firstHotspot.name)})`;
       if (validHotspotsForMap.length === 1) {
-        // Single hotspot, use label for better context
-        const hotspot = validHotspotsForMap[0];
-        query = `${hotspot.lat},${hotspot.lon}(${encodeURIComponent(hotspot.name)})`;
-        zoomLevel = 7; 
+        zoomLevel = 7; // Zoom in for a single hotspot
       } else {
-        // Multiple hotspots, use coordinates separated by |
-        query = validHotspotsForMap.map(h => `${h.lat},${h.lon}`).join('|');
-        zoomLevel = 5; // Google Maps will attempt to fit all markers.
+        zoomLevel = 5; // Wider zoom if there are multiple hotspots conceptually (map centers on first)
       }
     } else if (selectedRegion && regionMetadata[selectedRegion]) {
-      // No hotspots, but a specific region is selected
       const meta = regionMetadata[selectedRegion];
       if (typeof meta.latitude === 'number' && typeof meta.longitude === 'number') {
         query = `${meta.latitude},${meta.longitude}(${encodeURIComponent(selectedRegion)})`;
         zoomLevel = 7;
       } else {
         console.warn(`InteractiveMap: Missing or invalid metadata for selected region: ${selectedRegion}`);
-        query = '0,0'; // Fallback if selected region has bad metadata
+        query = 'world';
         zoomLevel = 2;
       }
     } else {
-      // Default: No hotspots and no specific region selected, or metadata missing for selection
-      query = 'world'; // General view for world
+      query = 'world';
       zoomLevel = 2;
     }
     
     if (!query.trim()) {
-        query = '0,0'; 
+        query = 'world'; 
         zoomLevel = 2;
     }
 
+    // Use 'q' for place search, 'll' for lat/lon center with 'q' for marker (optional)
+    // For simplicity and reliability with embed, focusing on 'q' for the main point.
     const newMapUrl = `https://maps.google.com/maps?q=${query}&hl=en&z=${zoomLevel}&t=k&output=embed`;
     setMapUrl(newMapUrl);
 
@@ -170,7 +166,7 @@ export function InteractiveMap() {
   let descriptionText = "Select filters to view specific regions or disease hotspots on the map.";
   if (selectedDisease) {
     if (currentHotspots.length > 0) {
-      descriptionText = `Forecast Hotspots for ${selectedDisease} (top ~80% contributors): ${currentHotspots.join(', ')}. Map displays these areas.`;
+      descriptionText = `Forecast Hotspots for ${selectedDisease} (top ~80% contributors): ${currentHotspots.join(', ')}. Map is centered on ${currentHotspots[0]}.`;
     } else {
       descriptionText = `No significant forecast hotspots identified for ${selectedDisease}.`;
       if (selectedRegion) {
@@ -194,7 +190,7 @@ export function InteractiveMap() {
       </CardHeader>
       <CardContent className="aspect-[16/9] relative p-0">
         <iframe
-          key={mapUrl} // Re-render iframe when URL changes
+          key={mapUrl} 
           src={mapUrl}
           width="100%"
           height="100%"
@@ -209,4 +205,3 @@ export function InteractiveMap() {
     </Card>
   );
 }
-
