@@ -11,8 +11,15 @@ export interface StlDataPoint { date: string; original: number; trend: number; s
 export interface ForecastDataPoint { date: string; actual: number | null; forecast: number | null; confidence: [number, number] | null; confidenceLower?: number | null; confidenceUpper?: number | null; }
 export interface AnomalyDataPoint { date: string; value: number; isAnomaly: boolean; }
 export interface RegionMetadataItem { latitude: number; longitude: number; country: string; }
+export interface KpiDataItem {
+  outbreakProbability: number;
+  r0Estimate: number;
+  casesNextMonth: number;
+  affectedPopulation: number;
+}
 
 export type RegionDiseaseData<T> = Record<string, Record<Disease, T[]>>;
+export type RegionKpiData = Record<string, Record<Disease, KpiDataItem>>;
 export type RegionMetadata = Record<string, RegionMetadataItem>;
 
 
@@ -31,6 +38,7 @@ interface DashboardContextProps {
   forecastData: RegionDiseaseData<ForecastDataPoint> | null;
   anomalyData: RegionDiseaseData<AnomalyDataPoint> | null;
   regionMetadata: RegionMetadata | null;
+  kpiData: RegionKpiData | null;
   dataLoading: boolean;
   dataError: string | null;
 }
@@ -47,6 +55,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [forecastData, setForecastData] = useState<RegionDiseaseData<ForecastDataPoint> | null>(null);
   const [anomalyData, setAnomalyData] = useState<RegionDiseaseData<AnomalyDataPoint> | null>(null);
   const [regionMetadata, setRegionMetadata] = useState<RegionMetadata | null>(null);
+  const [kpiData, setKpiData] = useState<RegionKpiData | null>(null);
   const [dataLoading, setDataLoading] = useState<boolean>(true);
   const [dataError, setDataError] = useState<string | null>(null);
   
@@ -62,22 +71,26 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       setDataLoading(true);
       setDataError(null);
       try {
-        const [stlResponse, forecastResponse, anomalyResponse, regionMetaResponse] = await Promise.all([
+        const [stlResponse, forecastResponse, anomalyResponse, regionMetaResponse, kpiResponse] = await Promise.all([
           fetch('/data/stl-decomposition-data.json'),
           fetch('/data/time-series-forecast-data.json'),
           fetch('/data/anomaly-detection-data.json'),
           fetch('/data/region-metadata.json'),
+          fetch('/data/kpi-data.json'),
         ]);
 
         if (!stlResponse.ok) throw new Error(`Failed to fetch STL data: ${stlResponse.statusText}`);
         if (!forecastResponse.ok) throw new Error(`Failed to fetch forecast data: ${forecastResponse.statusText}`);
         if (!anomalyResponse.ok) throw new Error(`Failed to fetch anomaly data: ${anomalyResponse.statusText}`);
         if (!regionMetaResponse.ok) throw new Error(`Failed to fetch region metadata: ${regionMetaResponse.statusText}`);
+        if (!kpiResponse.ok) throw new Error(`Failed to fetch KPI data: ${kpiResponse.statusText}`);
+
 
         const stlJson: RegionDiseaseData<StlDataPoint> = await stlResponse.json();
         const forecastJson: RegionDiseaseData<ForecastDataPoint> = await forecastResponse.json();
         const anomalyJson: RegionDiseaseData<AnomalyDataPoint> = await anomalyResponse.json();
         const regionMetaJson: RegionMetadata = await regionMetaResponse.json();
+        const kpiJson: RegionKpiData = await kpiResponse.json();
         
         setStlData(stlJson);
         
@@ -95,6 +108,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         setForecastData(processedForecastJson);
         setAnomalyData(anomalyJson);
         setRegionMetadata(regionMetaJson);
+        setKpiData(kpiJson);
 
         const regions = Object.keys(regionMetaJson);
         setAvailableRegions(regions);
@@ -133,7 +147,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       availableRegions, setAvailableRegions,
       selectedDisease, setSelectedDisease,
       availableDiseases,
-      stlData, forecastData, anomalyData, regionMetadata,
+      stlData, forecastData, anomalyData, regionMetadata, kpiData,
       dataLoading, dataError
     }}>
       {children}

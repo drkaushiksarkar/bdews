@@ -1,0 +1,103 @@
+
+{
+  "Dhaka": {
+    "Malaria": {
+      "outbreakProbability": 0.65,
+      "r0Estimate": 1.2,
+      "casesNextMonth": 150,
+      "affectedPopulation": 50000
+    },
+    "Dengue": {
+      "outbreakProbability": 0.75,
+      "r0Estimate": 1.5,
+      "casesNextMonth": 250,
+      "affectedPopulation": 75000
+    },
+    "Diarrhoea": {
+      "outbreakProbability": 0.40,
+      "r0Estimate": 0.9,
+      "casesNextMonth": 300,
+      "affectedPopulation": 100000
+    }
+  },
+  "Chittagong": {
+    "Malaria": {
+      "outbreakProbability": 0.55,
+      "r0Estimate": 1.1,
+      "casesNextMonth": 120,
+      "affectedPopulation": 40000
+    },
+    "Dengue": {
+      "outbreakProbability": 0.80,
+      "r0Estimate": 1.8,
+      "casesNextMonth": 200,
+      "affectedPopulation": 60000
+    },
+    "Diarrhoea": {
+      "outbreakProbability": 0.35,
+      "r0Estimate": 0.8,
+      "casesNextMonth": 250,
+      "affectedPopulation": 80000
+    }
+  },
+  "Freetown": {
+    "Malaria": {
+      "outbreakProbability": 0.70,
+      "r0Estimate": 1.4,
+      "casesNextMonth": 180,
+      "affectedPopulation": 30000
+    },
+    "Dengue": {
+      "outbreakProbability": 0.50,
+      "r0Estimate": 1.0,
+      "casesNextMonth": 80,
+      "affectedPopulation": 20000
+    },
+    "Diarrhoea": {
+      "outbreakProbability": 0.60,
+      "r0Estimate": 1.1,
+      "casesNextMonth": 400,
+      "affectedPopulation": 90000
+    }
+  },
+  "Bo": {
+    "Malaria": {
+      "outbreakProbability": 0.60,
+      "r0Estimate": 1.3,
+      "casesNextMonth": 100,
+      "affectedPopulation": 25000
+    },
+    "Dengue": {
+      "outbreakProbability": 0.45,
+      "r0Estimate": 0.9,
+      "casesNextMonth": 50,
+      "affectedPopulation": 15000
+    },
+    "Diarrhoea": {
+      "outbreakProbability": 0.50,
+      "r0Estimate": 1.0,
+      "casesNextMonth": 350,
+      "affectedPopulation": 70000
+    }
+  },
+  "Barishal": {
+    "Malaria": {
+        "outbreakProbability": 0.50,
+        "r0Estimate": 1.0,
+        "casesNextMonth": 90,
+        "affectedPopulation": 35000
+    },
+    "Dengue": {
+        "outbreakProbability": 0.60,
+        "r0Estimate": 1.2,
+        "casesNextMonth": 180,
+        "affectedPopulation": 55000
+    },
+    "Diarrhoea": {
+        "outbreakProbability": 0.30,
+        "r0Estimate": 0.7,
+        "casesNextMonth": 200,
+        "affectedPopulation": 70000
+    }
+  }
+}
