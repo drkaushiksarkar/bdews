@@ -7,7 +7,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, ReferenceDot } from 'rech
 import { TrendingUp, SearchCode, AlertTriangle } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useDashboardContext } from '@/context/DashboardContext';
+import { useDashboardContext, type Disease } from '@/context/DashboardContext';
 
 const stlChartConfig = {
   original: { label: 'Original', color: 'hsl(var(--chart-1))' },
@@ -32,18 +32,23 @@ interface StlDataPoint { date: string; original: number; trend: number; seasonal
 interface ForecastDataPoint { date: string; actual: number | null; forecast: number | null; confidence: [number, number] | null; confidenceLower?: number | null; confidenceUpper?: number | null; }
 interface AnomalyDataPoint { date: string; value: number; isAnomaly: boolean; }
 
-type StlChartDataContainer = Record<string, StlDataPoint[]>;
-type ForecastChartDataContainer = Record<string, ForecastDataPoint[]>;
-type AnomalyChartDataContainer = Record<string, AnomalyDataPoint[]>;
+type RegionDiseaseData<T> = Record<string, Record<Disease, T[]>>;
 
 
 export function RegionalInfoPanel() {
-  const { selectedYear, selectedRegion, setAvailableRegions, setSelectedRegion } = useDashboardContext();
+  const { 
+    selectedYear, 
+    selectedRegion, 
+    setAvailableRegions, 
+    selectedDisease, 
+    setSelectedDisease, // Added
+    availableDiseases // Added
+  } = useDashboardContext();
   const [isMounted, setIsMounted] = useState(false);
   
-  const [allStlDecompositionData, setAllStlDecompositionData] = useState<StlChartDataContainer>({});
-  const [allTimeSeriesForecastData, setAllTimeSeriesForecastData] = useState<ForecastChartDataContainer>({});
-  const [allAnomalyDetectionData, setAllAnomalyDetectionData] = useState<AnomalyChartDataContainer>({});
+  const [allStlDecompositionData, setAllStlDecompositionData] = useState<RegionDiseaseData<StlDataPoint>>({});
+  const [allTimeSeriesForecastData, setAllTimeSeriesForecastData] = useState<RegionDiseaseData<ForecastDataPoint>>({});
+  const [allAnomalyDetectionData, setAllAnomalyDetectionData] = useState<RegionDiseaseData<AnomalyDataPoint>>({});
   
   const [dataError, setDataError] = useState<string | null>(null);
 
@@ -61,26 +66,29 @@ export function RegionalInfoPanel() {
         if (!forecastResponse.ok) throw new Error(`Failed to fetch forecast data: ${forecastResponse.statusText}`);
         if (!anomalyResponse.ok) throw new Error(`Failed to fetch anomaly data: ${anomalyResponse.statusText}`);
 
-        const stlJson: StlChartDataContainer = await stlResponse.json();
-        const forecastJson: ForecastChartDataContainer = await forecastResponse.json();
-        const anomalyJson: AnomalyChartDataContainer = await anomalyResponse.json();
+        const stlJson: RegionDiseaseData<StlDataPoint> = await stlResponse.json();
+        const forecastJson: RegionDiseaseData<ForecastDataPoint> = await forecastResponse.json();
+        const anomalyJson: RegionDiseaseData<AnomalyDataPoint> = await anomalyResponse.json();
         
         if (!active) return;
 
         const regions = Object.keys(stlJson);
         setAvailableRegions(regions);
-        // Initial selectedRegion setting is handled by DashboardContext's useEffect
-        // based on availableRegions update.
+        // Initial selectedRegion is handled by DashboardContext
+        // Initial selectedDisease is handled by DashboardContext
 
         setAllStlDecompositionData(stlJson);
         
-        const processedForecastJson: ForecastChartDataContainer = {};
+        const processedForecastJson: RegionDiseaseData<ForecastDataPoint> = {};
         for (const region in forecastJson) {
-          processedForecastJson[region] = forecastJson[region].map((item: any) => ({
-            ...item,
-            confidenceLower: item.confidence ? item.confidence[0] : null,
-            confidenceUpper: item.confidence ? item.confidence[1] : null,
-          }));
+          processedForecastJson[region] = {} as Record<Disease, ForecastDataPoint[]>;
+          for (const disease in forecastJson[region]) {
+             processedForecastJson[region][disease as Disease] = forecastJson[region][disease as Disease].map((item: any) => ({
+              ...item,
+              confidenceLower: item.confidence ? item.confidence[0] : null,
+              confidenceUpper: item.confidence ? item.confidence[1] : null,
+            }));
+          }
         }
         setAllTimeSeriesForecastData(processedForecastJson);
         setAllAnomalyDetectionData(anomalyJson);
@@ -100,44 +108,56 @@ export function RegionalInfoPanel() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Runs once on mount to fetch all data
 
-  const getCurrentRegionData = <T,>(dataContainer: Record<string, T[]>): T[] => {
-    if (!selectedRegion || !dataContainer[selectedRegion]) return [];
-    return dataContainer[selectedRegion];
+  const getCurrentRegionDiseaseData = <T,>(
+    dataContainer: RegionDiseaseData<T>,
+    region?: string,
+    disease?: Disease
+  ): T[] => {
+    if (!region || !disease || !dataContainer[region] || !dataContainer[region][disease]) {
+      return [];
+    }
+    return dataContainer[region][disease];
   };
 
+  const stlDataForSelectedRegionDisease = useMemo(() => {
+    return getCurrentRegionDiseaseData(allStlDecompositionData, selectedRegion, selectedDisease);
+  }, [allStlDecompositionData, selectedRegion, selectedDisease]);
+
   const filteredStlData = useMemo(() => {
-    const currentRegionStlData = getCurrentRegionData(allStlDecompositionData);
-    if (!selectedYear || !currentRegionStlData.length) return currentRegionStlData;
+    if (!selectedYear || !stlDataForSelectedRegionDisease.length) return stlDataForSelectedRegionDisease;
     const yearStr = selectedYear.toString();
-    return currentRegionStlData.filter(item => item.date && item.date.endsWith(yearStr));
-  }, [selectedYear, selectedRegion, allStlDecompositionData]);
+    return stlDataForSelectedRegionDisease.filter(item => item.date && item.date.endsWith(yearStr));
+  }, [selectedYear, stlDataForSelectedRegionDisease]);
+
+  const forecastDataForSelectedRegionDisease = useMemo(() => {
+    return getCurrentRegionDiseaseData(allTimeSeriesForecastData, selectedRegion, selectedDisease);
+  }, [allTimeSeriesForecastData, selectedRegion, selectedDisease]);
 
   const filteredForecastData = useMemo(() => {
-    const currentRegionForecastData = getCurrentRegionData(allTimeSeriesForecastData);
-    if (!selectedYear || !currentRegionForecastData.length) return currentRegionForecastData;
+    if (!selectedYear || !forecastDataForSelectedRegionDisease.length) return forecastDataForSelectedRegionDisease;
     const yearStr = selectedYear.toString();
-    return currentRegionForecastData.filter(item => {
+    return forecastDataForSelectedRegionDisease.filter(item => {
       if (!item.date) return false;
       const itemYear = item.date.split(' ')[1];
-      if (item.actual !== null) { // For data points with actual values
-        return itemYear === yearStr; // Only show actuals for the selected year
+      if (item.actual !== null) {
+        return itemYear === yearStr;
       }
-      // For data points with forecast values (actual is null)
-      // Show forecasts if their year is the selected year or any future year relative to actuals.
-      // Given data structure, forecast starts where actuals end. So if selectedYear has forecasts, show them.
       return parseInt(itemYear) >= selectedYear; 
     });
-  }, [selectedYear, selectedRegion, allTimeSeriesForecastData]);
+  }, [selectedYear, forecastDataForSelectedRegionDisease]);
+
+  const anomalyDataForSelectedRegionDisease = useMemo(() => {
+    return getCurrentRegionDiseaseData(allAnomalyDetectionData, selectedRegion, selectedDisease);
+  }, [allAnomalyDetectionData, selectedRegion, selectedDisease]);
 
   const filteredAnomalyData = useMemo(() => {
-    const currentRegionAnomalyData = getCurrentRegionData(allAnomalyDetectionData);
-    if (!selectedYear || !currentRegionAnomalyData.length) return currentRegionAnomalyData;
+    if (!selectedYear || !anomalyDataForSelectedRegionDisease.length) return anomalyDataForSelectedRegionDisease;
     const yearStr = selectedYear.toString();
-    return currentRegionAnomalyData.filter(item => item.date && item.date.endsWith(yearStr));
-  }, [selectedYear, selectedRegion, allAnomalyDetectionData]);
+    return anomalyDataForSelectedRegionDisease.filter(item => item.date && item.date.endsWith(yearStr));
+  }, [selectedYear, anomalyDataForSelectedRegionDisease]);
 
 
-  if (!isMounted || !selectedRegion) {
+  if (!isMounted || !selectedRegion || !selectedDisease) {
     return (
       <div className="grid grid-cols-1 gap-6">
         {[1, 2, 3].map(key => (
@@ -159,7 +179,7 @@ export function RegionalInfoPanel() {
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <p>{isMounted && !selectedRegion ? "No regions available or selected." : "Loading data and regions..."}</p>
+                <p>{isMounted && (!selectedRegion || !selectedDisease) ? "No region or disease selected/available." : "Loading data and regions..."}</p>
             </CardContent>
         </Card>
       </div>
@@ -177,13 +197,14 @@ export function RegionalInfoPanel() {
             </CardHeader>
             <CardContent>
                 <p>Could not load chart data: {dataError}</p>
-                <p>Please ensure the data files are present in the `/public/data/` directory, are correctly formatted as JSON objects with regions as keys, and are accessible.</p>
+                <p>Please ensure the data files are present in the `/public/data/` directory, are correctly formatted as JSON objects with regions and diseases as keys, and are accessible.</p>
             </CardContent>
         </Card>
     );
   }
   
   const displayedRegion = selectedRegion || "Selected Region";
+  const displayedDisease = selectedDisease || "Selected Disease";
 
 
   return (
@@ -193,9 +214,9 @@ export function RegionalInfoPanel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <TrendingUp className="h-5 w-5 text-primary" />
-            STL Decomposition - {displayedRegion} {selectedYear && `(${selectedYear})`}
+            STL Decomposition - {displayedRegion} - {displayedDisease} {selectedYear && `(${selectedYear})`}
           </CardTitle>
-          <CardDescription>Seasonal-Trend-Loess decomposition of the selected metric.</CardDescription>
+          <CardDescription>Seasonal-Trend-Loess decomposition for {displayedDisease.toLowerCase()} in {displayedRegion}.</CardDescription>
         </CardHeader>
         <CardContent className="h-[400px] p-0 pr-6 pb-6">
           {filteredStlData.length > 0 ? (
@@ -213,7 +234,7 @@ export function RegionalInfoPanel() {
               </LineChart>
             </ChartContainer>
           ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground">No STL data available for {displayedRegion} in {selectedYear || 'the selected year'}.</div>
+            <div className="flex items-center justify-center h-full text-muted-foreground">No STL data available for {displayedDisease} in {displayedRegion} for {selectedYear || 'the selected year'}.</div>
           )}
         </CardContent>
       </Card>
@@ -223,9 +244,9 @@ export function RegionalInfoPanel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <SearchCode className="h-5 w-5 text-primary" />
-            Time Series Forecast - {displayedRegion} {selectedYear && `(Data for ${selectedYear})`}
+            Time Series Forecast - {displayedRegion} - {displayedDisease} {selectedYear && `(Data for ${selectedYear})`}
           </CardTitle>
-          <CardDescription>Forecast of the selected metric with confidence intervals.</CardDescription>
+          <CardDescription>Forecast for {displayedDisease.toLowerCase()} in {displayedRegion} with confidence intervals.</CardDescription>
         </CardHeader>
         <CardContent className="h-[400px] p-0 pr-6 pb-6">
          {filteredForecastData.length > 0 ? (
@@ -243,7 +264,7 @@ export function RegionalInfoPanel() {
               </LineChart>
             </ChartContainer>
           ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground">No forecast data available for {displayedRegion} in {selectedYear || 'the selected year'}.</div>
+            <div className="flex items-center justify-center h-full text-muted-foreground">No forecast data available for {displayedDisease} in {displayedRegion} for {selectedYear || 'the selected year'}.</div>
           )}
         </CardContent>
       </Card>
@@ -253,9 +274,9 @@ export function RegionalInfoPanel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <AlertTriangle className="h-5 w-5 text-primary" />
-            Anomaly Detection - {displayedRegion} {selectedYear && `(${selectedYear})`}
+            Anomaly Detection - {displayedRegion} - {displayedDisease} {selectedYear && `(${selectedYear})`}
           </CardTitle>
-          <CardDescription>Detected anomalies in the observed data.</CardDescription>
+          <CardDescription>Detected anomalies in {displayedDisease.toLowerCase()} data for {displayedRegion}.</CardDescription>
         </CardHeader>
         <CardContent className="h-[400px] p-0 pr-6 pb-6">
           {filteredAnomalyData.length > 0 ? (
@@ -283,11 +304,10 @@ export function RegionalInfoPanel() {
               </LineChart>
             </ChartContainer>
           ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground">No anomaly data available for {displayedRegion} in {selectedYear || 'the selected year'}.</div>
+            <div className="flex items-center justify-center h-full text-muted-foreground">No anomaly data available for {displayedDisease} in {displayedRegion} for {selectedYear || 'the selected year'}.</div>
           )}
         </CardContent>
       </Card>
     </div>
   );
 }
-

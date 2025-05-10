@@ -1,4 +1,5 @@
 
+
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { AppHeader } from '@/components/dashboard/Header';
 import { InteractiveMap } from '@/components/dashboard/InteractiveMap';
@@ -6,7 +7,8 @@ import { LayerToggles } from '@/components/dashboard/LayerToggles';
 import { TimeSlider } from '@/components/dashboard/TimeSlider';
 import { RegionalInfoPanel } from '@/components/dashboard/RegionalInfoPanel';
 import { InsightsGenerator } from '@/components/dashboard/InsightsGenerator';
-import { RegionSelector } from '@/components/dashboard/RegionSelector'; // Added
+import { RegionSelector } from '@/components/dashboard/RegionSelector'; 
+import { DiseaseSelector } from '@/components/dashboard/DiseaseSelector'; // Added
 import { SidebarSeparator } from '@/components/ui/sidebar';
 import { DashboardProvider } from '@/context/DashboardContext';
 
@@ -14,7 +16,9 @@ import { DashboardProvider } from '@/context/DashboardContext';
 function DashboardContent() {
   const sidebarContent = (
     <>
-      <RegionSelector /> {/* Added */}
+      <RegionSelector /> 
+      <SidebarSeparator />
+      <DiseaseSelector /> {/* Added */}
       <SidebarSeparator />
       <LayerToggles />
       <SidebarSeparator />

@@ -4,6 +4,9 @@
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
 import { createContext, useContext, useState, useEffect } from 'react';
 
+const diseases = ['Malaria', 'Dengue', 'Diarrhoea'] as const;
+export type Disease = typeof diseases[number];
+
 interface DashboardContextProps {
   selectedYear: number | undefined;
   setSelectedYear: Dispatch<SetStateAction<number | undefined>>;
@@ -11,6 +14,9 @@ interface DashboardContextProps {
   setSelectedRegion: Dispatch<SetStateAction<string | undefined>>;
   availableRegions: string[];
   setAvailableRegions: Dispatch<SetStateAction<string[]>>;
+  selectedDisease: Disease | undefined;
+  setSelectedDisease: Dispatch<SetStateAction<Disease | undefined>>;
+  availableDiseases: readonly Disease[]; // Keep as readonly since it's a fixed list for now
 }
 
 const DashboardContext = createContext<DashboardContextProps | undefined>(undefined);
@@ -19,6 +25,9 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined);
   const [selectedRegion, setSelectedRegion] = useState<string | undefined>(undefined);
   const [availableRegions, setAvailableRegions] = useState<string[]>([]);
+  const [selectedDisease, setSelectedDisease] = useState<Disease | undefined>(undefined);
+  
+  const availableDiseases = diseases; // Using the predefined list
 
   useEffect(() => {
     // Set initial year on mount to a year where data exists
@@ -33,12 +42,20 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     }
   }, [availableRegions, selectedRegion, setSelectedRegion]);
 
+  useEffect(() => {
+    if (availableDiseases.length > 0 && !selectedDisease) {
+      setSelectedDisease(availableDiseases[0]);
+    }
+  }, [availableDiseases, selectedDisease, setSelectedDisease]);
+
 
   return (
     <DashboardContext.Provider value={{ 
       selectedYear, setSelectedYear,
       selectedRegion, setSelectedRegion,
-      availableRegions, setAvailableRegions
+      availableRegions, setAvailableRegions,
+      selectedDisease, setSelectedDisease,
+      availableDiseases
     }}>
       {children}
     </DashboardContext.Provider>
