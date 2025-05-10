@@ -19,8 +19,7 @@ const stlChartConfig = {
 const forecastChartConfig = {
   actual: { label: 'Actual', color: 'hsl(var(--chart-1))' },
   forecast: { label: 'Forecast', color: 'hsl(var(--chart-2))' },
-  confidenceUpper: { label: 'Confidence Upper', color: 'hsl(var(--chart-2))', icon: () => null }, // Hidden from legend by null icon
-  confidenceLower: { label: 'Confidence Lower', color: 'hsl(var(--chart-2))', icon: () => null }, // Hidden from legend by null icon
+  confidence: { label: 'Confidence Interval', color: 'hsl(var(--chart-2))', icon: () => null },
 } satisfies ChartConfig;
 
 
@@ -98,9 +97,9 @@ export function RegionalInfoPanel() {
 
   if (dataLoading) {
     return (
-      <div className="grid grid-cols-1 gap-6">
+      <div className="flex flex-col lg:flex-row gap-6">
         {[1, 2, 3].map(key => (
-          <Card key={key} className="shadow-lg">
+          <Card key={key} className="shadow-lg flex-1 min-w-0">
             <CardHeader>
               <Skeleton className="h-6 w-3/4 mb-2" />
               <Skeleton className="h-4 w-1/2" />
@@ -116,7 +115,7 @@ export function RegionalInfoPanel() {
   
   if (dataError) {
     return (
-        <Card className="shadow-lg col-span-1">
+        <Card className="shadow-lg col-span-1 lg:col-span-3">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-xl text-destructive">
                     <AlertTriangle className="h-5 w-5" />
@@ -133,7 +132,7 @@ export function RegionalInfoPanel() {
 
   if (!selectedRegion || !selectedDisease) {
      return (
-         <Card className="shadow-lg col-span-1">
+         <Card className="shadow-lg col-span-1 lg:col-span-3">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-xl">
                     <SearchCode className="h-5 w-5" />
@@ -152,15 +151,15 @@ export function RegionalInfoPanel() {
 
 
   return (
-    <div className="grid grid-cols-1 gap-6">
+    <div className="flex flex-col lg:flex-row gap-6">
       {/* STL Decomposition Chart Card */}
-      <Card className="shadow-lg">
+      <Card className="shadow-lg flex-1 min-w-0">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <TrendingUp className="h-5 w-5 text-primary" />
-            STL Decomposition - {displayedRegion} - {displayedDisease} {selectedYear && `(${selectedYear})`}
+            STL Decomposition
           </CardTitle>
-          <CardDescription>Seasonal-Trend-Loess decomposition for {displayedDisease.toLowerCase()} in {displayedRegion}.</CardDescription>
+          <CardDescription>{displayedRegion} - {displayedDisease} {selectedYear && `(${selectedYear})`}</CardDescription>
         </CardHeader>
         <CardContent className="h-[400px] p-0 pr-6 pb-6">
           {filteredStlData.length > 0 ? (
@@ -184,13 +183,13 @@ export function RegionalInfoPanel() {
       </Card>
 
       {/* Time Series Forecasting Chart Card */}
-      <Card className="shadow-lg">
+      <Card className="shadow-lg flex-1 min-w-0">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <SearchCode className="h-5 w-5 text-primary" />
-            Time Series Forecast - {displayedRegion} - {displayedDisease} {selectedYear && `(Data from ${selectedYear})`}
+            Time Series Forecast
           </CardTitle>
-          <CardDescription>Forecast for {displayedDisease.toLowerCase()} in {displayedRegion} with confidence intervals.</CardDescription>
+          <CardDescription>{displayedRegion} - {displayedDisease} {selectedYear && `(Data from ${selectedYear})`}</CardDescription>
         </CardHeader>
         <CardContent className="h-[400px] p-0 pr-6 pb-6">
          {filteredForecastData.length > 0 ? (
@@ -203,9 +202,8 @@ export function RegionalInfoPanel() {
                 <ChartLegend content={<ChartLegendContent />} />
                 <Line connectNulls type="monotone" dataKey="actual" stroke="var(--color-actual)" strokeWidth={2} dot={false} />
                 <Line connectNulls type="monotone" dataKey="forecast" stroke="var(--color-forecast)" strokeWidth={2} dot={false} strokeDasharray="5 5" />
-                {/* Confidence Interval Area/Lines */}
-                <Line connectNulls type="monotone" dataKey="confidenceLower" stroke="var(--color-forecast)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Lower" legendType="none" />
-                <Line connectNulls type="monotone" dataKey="confidenceUpper" stroke="var(--color-forecast)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Upper" legendType="none" />
+                <Line connectNulls type="monotone" dataKey="confidenceLower" stroke="var(--color-confidence)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Band" legendType="none" />
+                <Line connectNulls type="monotone" dataKey="confidenceUpper" stroke="var(--color-confidence)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Band" legendType="none" />
               </LineChart>
             </ChartContainer>
           ) : (
@@ -215,13 +213,13 @@ export function RegionalInfoPanel() {
       </Card>
 
       {/* Anomaly Detection Chart Card */}
-      <Card className="shadow-lg">
+      <Card className="shadow-lg flex-1 min-w-0">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <AlertTriangle className="h-5 w-5 text-primary" />
-            Anomaly Detection - {displayedRegion} - {displayedDisease} {selectedYear && `(${selectedYear})`}
+            Anomaly Detection
           </CardTitle>
-          <CardDescription>Detected anomalies in {displayedDisease.toLowerCase()} data for {displayedRegion}.</CardDescription>
+          <CardDescription>{displayedRegion} - {displayedDisease} {selectedYear && `(${selectedYear})`}</CardDescription>
         </CardHeader>
         <CardContent className="h-[400px] p-0 pr-6 pb-6">
           {filteredAnomalyData.length > 0 ? (
@@ -239,8 +237,8 @@ export function RegionalInfoPanel() {
                     x={entry.date}
                     y={entry.value}
                     r={6}
-                    fill="var(--color-anomalyDot)" // Use the color from chartConfig
-                    stroke="hsl(var(--background))" // Ensure contrast with background
+                    fill="var(--color-anomalyDot)" 
+                    stroke="hsl(var(--background))" 
                     strokeWidth={2}
                     ifOverflow="extendDomain"
                     aria-label={`Anomaly at ${entry.date} with value ${entry.value}`}
