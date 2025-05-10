@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -10,16 +9,15 @@ import type { Disease, ForecastDataPoint } from '@/context/DashboardContext';
 
 
 export function InteractiveMap() {
-  const { 
-    selectedRegion, 
-    selectedDisease, 
-    // selectedYear, // No longer directly used for hotspot calculation logic
-    forecastData, 
+  const {
+    selectedRegion,
+    selectedDisease,
+    forecastData,
     regionMetadata,
     dataLoading,
-    dataError 
+    dataError
   } = useDashboardContext();
-  
+
   const [mapUrl, setMapUrl] = useState('https://maps.google.com/maps?q=0,0&hl=en&z=2&t=k&output=embed');
   const [currentHotspots, setCurrentHotspots] = useState<string[]>([]);
 
@@ -32,14 +30,13 @@ export function InteractiveMap() {
 
     for (const regionName in forecastData) {
       if (Object.prototype.hasOwnProperty.call(forecastData, regionName) &&
-          regionMetadata[regionName] && // Ensure metadata exists for potential plotting
+          regionMetadata[regionName] &&
           forecastData[regionName]?.[selectedDisease]) {
-            
+
         const diseaseData: ForecastDataPoint[] = forecastData[regionName][selectedDisease];
         let currentRegionTotalForecast = 0;
-        
+
         diseaseData.forEach(dp => {
-          // Sum forecast values (dp.actual is null for forecasts)
           if (dp.forecast !== null && typeof dp.forecast === 'number') {
             currentRegionTotalForecast += dp.forecast;
           }
@@ -55,11 +52,10 @@ export function InteractiveMap() {
       return [];
     }
 
-    // Sort regions by total forecast in descending order
     regionForecasts.sort((a, b) => b.totalForecast - a.totalForecast);
 
     const overallTotalForecast = regionForecasts.reduce((sum, region) => sum + region.totalForecast, 0);
-    if (overallTotalForecast <= 0) { // Avoid division by zero or if all forecasts are non-positive
+    if (overallTotalForecast <= 0) {
         return [];
     }
 
@@ -70,7 +66,7 @@ export function InteractiveMap() {
     for (const region of regionForecasts) {
       hotspots.push(region.name);
       cumulativeForecast += region.totalForecast;
-      if (cumulativeForecast >= targetForecastSum) { 
+      if (cumulativeForecast >= targetForecastSum) {
         break;
       }
     }
@@ -79,18 +75,17 @@ export function InteractiveMap() {
 
   useEffect(() => {
     setCurrentHotspots(forecastBasedHotspotRegions);
-    
+
     if (!regionMetadata) {
+      // Set a default map or a loading state if metadata is crucial and not yet loaded
+      setMapUrl('https://maps.google.com/maps?q=0,0&hl=en&z=2&t=k&output=embed');
       return;
     }
 
     let query = '';
-    let zoomLevel = 2;
+    let zoomLevel = 2; // Default global zoom
 
-    // Use forecastBasedHotspotRegions to determine what to plot
-    const plotDataRegions = forecastBasedHotspotRegions;
-
-    const validPlotData = plotDataRegions
+    const validHotspotsWithCoords = forecastBasedHotspotRegions
       .map(regionName => {
         const meta = regionMetadata[regionName];
         if (meta && typeof meta.latitude === 'number' && typeof meta.longitude === 'number') {
@@ -101,49 +96,43 @@ export function InteractiveMap() {
             queryString: `${meta.latitude},${meta.longitude}(${encodeURIComponent(regionName)})`
           };
         }
-        console.warn(`InteractiveMap: Missing or invalid metadata for hotspot region: ${regionName}. Latitude: ${meta?.latitude}, Longitude: ${meta?.longitude}`);
-        return null; 
+        console.warn(`InteractiveMap: Missing or invalid metadata for hotspot region: ${regionName}.`);
+        return null;
       })
       .filter(item => item !== null) as { name: string; lat: number; lon: number; queryString: string }[];
 
-
-    if (validPlotData.length > 0) {
-      // Prioritize selected region if it's part of the plot data (either a hotspot or explicitly selected)
-      const selectedRegionInPlotData = selectedRegion && validPlotData.find(h => h.name === selectedRegion);
-
-      if (selectedRegionInPlotData) {
-        const selectedQuery = selectedRegionInPlotData.queryString;
-        const otherQueries = validPlotData
-          .filter(h => h.name !== selectedRegion)
-          .map(h => h.queryString);
-        query = [selectedQuery, ...otherQueries].join('|');
-        zoomLevel = 8; // Zoom in more if selected region is primary focus
+    if (validHotspotsWithCoords.length > 0) {
+      // We have hotspots to display
+      query = validHotspotsWithCoords.map(h => h.queryString).join('|');
+      if (validHotspotsWithCoords.length === 1) {
+        zoomLevel = 7; // Zoom in more for a single hotspot
       } else {
-        query = validPlotData.map(h => h.queryString).join('|');
-        zoomLevel = validPlotData.length === 1 ? 8 : 6; // Zoom more for single item, less for multiple
+        zoomLevel = 5; // Zoom out a bit for multiple hotspots (country/large region level)
+                       // Google Maps will attempt to fit all markers.
       }
     } else if (selectedRegion && regionMetadata[selectedRegion]) {
-      // No hotspots, but a region is selected
+      // No hotspots, but a specific region is selected
       const meta = regionMetadata[selectedRegion];
       if (typeof meta.latitude === 'number' && typeof meta.longitude === 'number') {
         query = `${meta.latitude},${meta.longitude}(${encodeURIComponent(selectedRegion)})`;
-        zoomLevel = 8;
+        zoomLevel = 7; // Zoom in for the selected region
       } else {
         console.warn(`InteractiveMap: Missing or invalid metadata for selected region: ${selectedRegion}`);
-        query = '0,0'; 
+        query = '0,0'; // Fallback if selected region has bad metadata
         zoomLevel = 2;
       }
     } else {
-      // Default global view
+      // Default: No hotspots and no specific region selected, or metadata missing for selection
       query = '0,0';
       zoomLevel = 2;
     }
     
-    if (!query.trim()) { 
-        query = '0,0';
+    // Ensure query is never empty to prevent 404s
+    if (!query.trim()) {
+        query = '0,0'; // Should be caught by above logic, but as a safeguard
         zoomLevel = 2;
     }
-    
+
     const newMapUrl = `https://maps.google.com/maps?q=${query}&hl=en&z=${zoomLevel}&t=k&output=embed`;
     setMapUrl(newMapUrl);
 
@@ -178,28 +167,20 @@ export function InteractiveMap() {
     );
   }
 
-  let descriptionText = "Select a disease to identify forecast hotspots.";
+  let descriptionText = "Select filters to view specific regions or disease hotspots on the map.";
   if (selectedDisease) {
     if (currentHotspots.length > 0) {
-      descriptionText = `Forecast Hotspots for ${selectedDisease} (top ~80% contributors): ${currentHotspots.join(', ')}.`;
+      descriptionText = `Forecast Hotspots for ${selectedDisease} (top ~80% contributors): ${currentHotspots.join(', ')}. Map displays these areas.`;
     } else {
-      descriptionText = `No significant forecast hotspots identified for ${selectedDisease} based on the 80% contribution rule, or insufficient forecast data.`;
-    }
-  }
-  
-  if (selectedRegion) {
-      if (selectedDisease && currentHotspots.includes(selectedRegion)) {
-         // Already mentions hotspots, add that this region is one
-         // descriptionText = descriptionText.replace('.', `, with ${selectedRegion} being a key area.`);
-      } else if (selectedDisease && currentHotspots.length > 0 && !currentHotspots.includes(selectedRegion)){
-          descriptionText += ` Map currently focused on ${selectedRegion}.`;
-      } else if (!selectedDisease) {
-          descriptionText = `Displaying ${selectedRegion}. Select a disease to identify hotspots.`;
-      } else { // selectedDisease but no hotspots, and selectedRegion
-          descriptionText += ` Map currently focused on ${selectedRegion}.`;
+      descriptionText = `No significant forecast hotspots identified for ${selectedDisease}.`;
+      if (selectedRegion) {
+        descriptionText += ` Map showing ${selectedRegion}.`;
+      } else {
+        descriptionText += ` Select a region to view its location.`;
       }
-  } else if (!selectedDisease) { // No region, no disease
-      descriptionText = "Select filters to view specific regions or disease hotspots.";
+    }
+  } else if (selectedRegion) {
+    descriptionText = `Displaying ${selectedRegion}. Select a disease to identify potential hotspots.`;
   }
 
 
@@ -213,7 +194,7 @@ export function InteractiveMap() {
       </CardHeader>
       <CardContent className="aspect-[16/9] relative p-0">
         <iframe
-          key={mapUrl} 
+          key={mapUrl}
           src={mapUrl}
           width="100%"
           height="100%"
