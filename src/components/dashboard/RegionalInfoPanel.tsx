@@ -41,8 +41,8 @@ export function RegionalInfoPanel() {
     selectedRegion, 
     setAvailableRegions, 
     selectedDisease, 
-    setSelectedDisease, // Added
-    availableDiseases // Added
+    setSelectedDisease, 
+    availableDiseases 
   } = useDashboardContext();
   const [isMounted, setIsMounted] = useState(false);
   
@@ -74,8 +74,7 @@ export function RegionalInfoPanel() {
 
         const regions = Object.keys(stlJson);
         setAvailableRegions(regions);
-        // Initial selectedRegion is handled by DashboardContext
-        // Initial selectedDisease is handled by DashboardContext
+        
 
         setAllStlDecompositionData(stlJson);
         
@@ -106,7 +105,7 @@ export function RegionalInfoPanel() {
     fetchData();
     return () => { active = false; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Runs once on mount to fetch all data
+  }, []); 
 
   const getCurrentRegionDiseaseData = <T,>(
     dataContainer: RegionDiseaseData<T>,
@@ -139,9 +138,10 @@ export function RegionalInfoPanel() {
     return forecastDataForSelectedRegionDisease.filter(item => {
       if (!item.date) return false;
       const itemYear = item.date.split(' ')[1];
-      if (item.actual !== null) {
+      if (item.actual !== null) { // For actual data, filter by exact year
         return itemYear === yearStr;
       }
+      // For forecast data (actual is null), include data from the selected year onwards
       return parseInt(itemYear) >= selectedYear; 
     });
   }, [selectedYear, forecastDataForSelectedRegionDisease]);
@@ -179,7 +179,7 @@ export function RegionalInfoPanel() {
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <p>{isMounted && (!selectedRegion || !selectedDisease) ? "No region or disease selected/available." : "Loading data and regions..."}</p>
+                <p>{isMounted && (!selectedRegion || !selectedDisease) ? "Please select a region and a disease to view data." : "Loading data and regions..."}</p>
             </CardContent>
         </Card>
       </div>
@@ -244,7 +244,7 @@ export function RegionalInfoPanel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <SearchCode className="h-5 w-5 text-primary" />
-            Time Series Forecast - {displayedRegion} - {displayedDisease} {selectedYear && `(Data for ${selectedYear})`}
+            Time Series Forecast - {displayedRegion} - {displayedDisease} {selectedYear && `(Data from ${selectedYear})`}
           </CardTitle>
           <CardDescription>Forecast for {displayedDisease.toLowerCase()} in {displayedRegion} with confidence intervals.</CardDescription>
         </CardHeader>
@@ -259,8 +259,8 @@ export function RegionalInfoPanel() {
                 <ChartLegend content={<ChartLegendContent />} />
                 <Line connectNulls type="monotone" dataKey="actual" stroke="var(--color-actual)" strokeWidth={2} dot={false} />
                 <Line connectNulls type="monotone" dataKey="forecast" stroke="var(--color-forecast)" strokeWidth={2} dot={false} strokeDasharray="5 5" />
-                <Line connectNulls type="monotone" dataKey="confidenceLower" stroke="var(--color-confidenceLower)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Band" legendType="none"/>
-                <Line connectNulls type="monotone" dataKey="confidenceUpper" stroke="var(--color-confidenceUpper)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Band" legendType="none"/>
+                <Line connectNulls type="monotone" dataKey="confidenceLower" stroke="var(--color-confidenceLower)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Lower" legendType="none"/>
+                <Line connectNulls type="monotone" dataKey="confidenceUpper" stroke="var(--color-confidenceUpper)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Upper" legendType="none"/>
               </LineChart>
             </ChartContainer>
           ) : (
@@ -311,3 +311,4 @@ export function RegionalInfoPanel() {
     </div>
   );
 }
+
