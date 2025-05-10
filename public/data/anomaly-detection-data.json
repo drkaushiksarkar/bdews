@@ -1,0 +1,183 @@
+
+[
+  {
+    "date": "Jan 2021",
+    "value": 72.36,
+    "isAnomaly": false
+  },
+  {
+    "date": "Feb 2021",
+    "value": 72.91,
+    "isAnomaly": false
+  },
+  {
+    "date": "Mar 2021",
+    "value": 77.98,
+    "isAnomaly": false
+  },
+  {
+    "date": "Apr 2021",
+    "value": 72.84,
+    "isAnomaly": false
+  },
+  {
+    "date": "May 2021",
+    "value": 67.89,
+    "isAnomaly": false
+  },
+  {
+    "date": "Jun 2021",
+    "value": 60.26,
+    "isAnomaly": false
+  },
+  {
+    "date": "Jul 2021",
+    "value": 56.33,
+    "isAnomaly": false
+  },
+  {
+    "date": "Aug 2021",
+    "value": 53.22,
+    "isAnomaly": false
+  },
+  {
+    "date": "Sep 2021",
+    "value": 58.71,
+    "isAnomaly": false
+  },
+  {
+    "date": "Oct 2021",
+    "value": 58.49,
+    "isAnomaly": false
+  },
+  {
+    "date": "Nov 2021",
+    "value": 90.49,
+    "isAnomaly": true
+  },
+  {
+    "date": "Dec 2021",
+    "value": 67.03,
+    "isAnomaly": false
+  },
+  {
+    "date": "Jan 2022",
+    "value": 68.75,
+    "isAnomaly": false
+  },
+  {
+    "date": "Feb 2022",
+    "value": 69.29,
+    "isAnomaly": false
+  },
+  {
+    "date": "Mar 2022",
+    "value": 74.35,
+    "isAnomaly": false
+  },
+  {
+    "date": "Apr 2022",
+    "value": 69.2,
+    "isAnomaly": false
+  },
+  {
+    "date": "May 2022",
+    "value": 64.25,
+    "isAnomaly": false
+  },
+  {
+    "date": "Jun 2022",
+    "value": 56.62,
+    "isAnomaly": false
+  },
+  {
+    "date": "Jul 2022",
+    "value": 52.7,
+    "isAnomaly": false
+  },
+  {
+    "date": "Aug 2022",
+    "value": 49.59,
+    "isAnomaly": false
+  },
+  {
+    "date": "Sep 2022",
+    "value": 55.1,
+    "isAnomaly": false
+  },
+  {
+    "date": "Oct 2022",
+    "value": 54.81,
+    "isAnomaly": false
+  },
+  {
+    "date": "Nov 2022",
+    "value": 61.37,
+    "isAnomaly": false
+  },
+  {
+    "date": "Dec 2022",
+    "value": 63.39,
+    "isAnomaly": false
+  },
+  {
+    "date": "Jan 2023",
+    "value": 65.13,
+    "isAnomaly": false
+  },
+  {
+    "date": "Feb 2023",
+    "value": 40.5,
+    "isAnomaly": true
+  },
+  {
+    "date": "Mar 2023",
+    "value": 70.72,
+    "isAnomaly": false
+  },
+  {
+    "date": "Apr 2023",
+    "value": 65.56,
+    "isAnomaly": false
+  },
+  {
+    "date": "May 2023",
+    "value": 60.61,
+    "isAnomaly": false
+  },
+  {
+    "date": "Jun 2023",
+    "value": 52.98,
+    "isAnomaly": false
+  },
+  {
+    "date": "Jul 2023",
+    "value": 49.07,
+    "isAnomaly": false
+  },
+  {
+    "date": "Aug 2023",
+    "value": 45.96,
+    "isAnomaly": false
+  },
+  {
+    "date": "Sep 2023",
+    "value": 51.49,
+    "isAnomaly": false
+  },
+  {
+    "date": "Oct 2023",
+    "value": 51.13,
+    "isAnomaly": false
+  },
+  {
+    "date": "Nov 2023",
+    "value": 57.74,
+    "isAnomaly": false
+  },
+  {
+    "date": "Dec 2023",
+    "value": 59.75,
+    "isAnomaly": false
+  }
+]

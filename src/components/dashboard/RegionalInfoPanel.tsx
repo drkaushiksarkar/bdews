@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,35 +7,6 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, ReferenceDot } from 'rech
 import { TrendingUp, SearchCode, AlertTriangle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-
-// Helper to generate dummy time series data
-const generateMonthlyData = (
-  startDate: Date,
-  numMonths: number,
-  initialValue: number,
-  trendFactor: number,
-  seasonalAmplitude: number,
-  noiseLevel: number
-) => {
-  const data = [];
-  const baseDate = new Date(startDate); // Use a copy
-  for (let i = 0; i < numMonths; i++) {
-    const date = new Date(baseDate);
-    date.setMonth(baseDate.getMonth() + i);
-    const month = date.getMonth(); // 0-11
-
-    const trend = initialValue + trendFactor * i;
-    const seasonality = seasonalAmplitude * Math.sin((2 * Math.PI * month) / 11); // 12 months cycle (0-11)
-    const noise = (Math.random() - 0.5) * noiseLevel;
-    const value = Math.max(0, trend + seasonality + noise); // Assuming non-negative values like counts
-
-    data.push({
-      date: date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
-      value: parseFloat(value.toFixed(2)),
-    });
-  }
-  return data;
-};
 
 const stlChartConfig = {
   original: { label: 'Original', color: 'hsl(var(--chart-1))' },
@@ -46,12 +18,13 @@ const stlChartConfig = {
 const forecastChartConfig = {
   actual: { label: 'Actual', color: 'hsl(var(--chart-1))' },
   forecast: { label: 'Forecast', color: 'hsl(var(--chart-2))' },
-  confidence: { label: 'Confidence Interval', color: 'hsl(var(--chart-2))' },
+  confidenceUpper: { label: 'Confidence Upper', color: 'hsl(var(--chart-2))', icon: () => null }, // Hide from legend if desired
+  confidenceLower: { label: 'Confidence Lower', color: 'hsl(var(--chart-2))', icon: () => null }, // Hide from legend if desired
 } satisfies ChartConfig;
 
 const anomalyChartConfig = {
   value: { label: 'Observed Value', color: 'hsl(var(--chart-1))' },
-  anomalyDot: { label: 'Anomaly', color: 'hsl(var(--destructive))' }, 
+  anomalyDot: { label: 'Anomaly', color: 'hsl(var(--destructive))' },
 } satisfies ChartConfig;
 
 
@@ -60,61 +33,42 @@ export function RegionalInfoPanel() {
   const [stlDecompositionData, setStlDecompositionData] = useState<any[]>([]);
   const [timeSeriesForecastData, setTimeSeriesForecastData] = useState<any[]>([]);
   const [anomalyDetectionData, setAnomalyDetectionData] = useState<any[]>([]);
+  const [dataError, setDataError] = useState<string | null>(null);
 
   useEffect(() => {
-    const clientStartDate = new Date(2021, 0, 1); 
+    async function fetchData() {
+      try {
+        const [stlResponse, forecastResponse, anomalyResponse] = await Promise.all([
+          fetch('/data/stl-decomposition-data.json'),
+          fetch('/data/time-series-forecast-data.json'),
+          fetch('/data/anomaly-detection-data.json'),
+        ]);
 
-    const originalSeriesDataForSTLRaw = generateMonthlyData(clientStartDate, 36, 50, 0.5, 10, 5);
-    setStlDecompositionData(originalSeriesDataForSTLRaw.map((item, i) => {
-      const dateObj = new Date(item.date);
-      const month = dateObj.getMonth();
-      const trend = 50 + 0.5 * i + Math.sin(i / 6) * 2;
-      const seasonal = 10 * Math.sin((2 * Math.PI * month) / 11) + (Math.random() - 0.5) * 2;
-      const residual = item.value - trend - seasonal; 
-      return {
-        date: item.date,
-        original: item.value,
-        trend: parseFloat(trend.toFixed(2)),
-        seasonal: parseFloat(seasonal.toFixed(2)),
-        residual: parseFloat(residual.toFixed(2)),
-      };
-    }));
+        if (!stlResponse.ok) throw new Error(`Failed to fetch STL data: ${stlResponse.statusText}`);
+        if (!forecastResponse.ok) throw new Error(`Failed to fetch forecast data: ${forecastResponse.statusText}`);
+        if (!anomalyResponse.ok) throw new Error(`Failed to fetch anomaly data: ${anomalyResponse.statusText}`);
 
-    const historicalDataPoints = 24;
-    const forecastDataPoints = 12;
-    const fullSeriesForForecastRaw = generateMonthlyData(clientStartDate, historicalDataPoints + forecastDataPoints, 30, 0.8, 15, 8);
-    setTimeSeriesForecastData(fullSeriesForForecastRaw.map((item, i) => {
-      const dateObj = new Date(item.date);
-      const month = dateObj.getMonth();
-      if (i < historicalDataPoints) {
-        return { date: item.date, actual: item.value, forecast: null, confidence: null };
-      } else {
-        const forecastBaseValue = 30 + 0.8 * i + 15 * Math.sin((2 * Math.PI * month) / 11);
-        const forecastNoise = (Math.random() - 0.5) * 10;
-        const forecastValue = Math.max(0, forecastBaseValue + forecastNoise);
-        const confidenceRange = Math.random() * 10 + 8;
-        return {
-          date: item.date,
-          actual: null,
-          forecast: parseFloat(forecastValue.toFixed(2)),
-          confidence: [
-            parseFloat(Math.max(0, forecastValue - confidenceRange).toFixed(2)),
-            parseFloat(Math.max(0, forecastValue + confidenceRange).toFixed(2)),
-          ],
-        };
+        const stlJson = await stlResponse.json();
+        const forecastJson = await forecastResponse.json();
+        const anomalyJson = await anomalyResponse.json();
+
+        setStlDecompositionData(stlJson);
+        setTimeSeriesForecastData(forecastJson.map((item: any) => ({
+          ...item,
+          // Ensure confidence is an array [min, max] for area chart or two lines
+          confidenceLower: item.confidence ? item.confidence[0] : null,
+          confidenceUpper: item.confidence ? item.confidence[1] : null,
+        })));
+        setAnomalyDetectionData(anomalyJson);
+        setDataError(null);
+      } catch (error) {
+        console.error("Failed to load chart data:", error);
+        setDataError(error instanceof Error ? error.message : "An unknown error occurred while fetching data.");
+      } finally {
+        setIsMounted(true);
       }
-    }));
-    
-    const anomalyDetectionBaseDataRaw = generateMonthlyData(clientStartDate, 36, 70, -0.3, 8, 4);
-    setAnomalyDetectionData(anomalyDetectionBaseDataRaw.map((item, i) => {
-      let isAnomaly = false;
-      let value = item.value;
-      if (i === 10) { value = Math.max(0, value + 30); isAnomaly = true; }
-      if (i === 25) { value = Math.max(0, value - 25); isAnomaly = true; }
-      return { date: item.date, value: parseFloat(value.toFixed(2)), isAnomaly: isAnomaly };
-    }));
-
-    setIsMounted(true);
+    }
+    fetchData();
   }, []);
 
   if (!isMounted) {
@@ -134,6 +88,24 @@ export function RegionalInfoPanel() {
       </div>
     );
   }
+
+  if (dataError) {
+    return (
+        <Card className="shadow-lg col-span-1">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl text-destructive">
+                    <AlertTriangle className="h-5 w-5" />
+                    Error Loading Data
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p>Could not load chart data: {dataError}</p>
+                <p>Please ensure the data files are present in the `/public/data/` directory and are accessible.</p>
+            </CardContent>
+        </Card>
+    );
+  }
+
 
   return (
     <div className="grid grid-cols-1 gap-6">
@@ -182,15 +154,8 @@ export function RegionalInfoPanel() {
               <ChartLegend content={<ChartLegendContent />} />
               <Line connectNulls type="monotone" dataKey="actual" stroke="var(--color-actual)" strokeWidth={2} dot={false} />
               <Line connectNulls type="monotone" dataKey="forecast" stroke="var(--color-forecast)" strokeWidth={2} dot={false} strokeDasharray="5 5" />
-              {/* Confidence interval rendering can be tricky; this is a simplified placeholder for the line type. 
-                  Actual confidence bands often use Area charts or two lines.
-                  For simplicity, if 'confidence' is an array [min, max], Recharts doesn't directly plot it as a band with Line.
-                  This setup might just plot the first value of the confidence array if not handled by a custom component or Area.
-                  Keeping it as a line for now as per existing structure, assuming it plots one of the bounds or it's styled to be invisible.
-              */}
-              <Line connectNulls type="monotone" dataKey="confidence[0]" name="Confidence Min" stroke="var(--color-confidence)" strokeOpacity={0.4} strokeWidth={1} dot={false} />
-              <Line connectNulls type="monotone" dataKey="confidence[1]" name="Confidence Max" stroke="var(--color-confidence)" strokeOpacity={0.4} strokeWidth={1} dot={false} />
-
+              <Line connectNulls type="monotone" dataKey="confidenceLower" stroke="var(--color-confidenceLower)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Lower" />
+              <Line connectNulls type="monotone" dataKey="confidenceUpper" stroke="var(--color-confidenceUpper)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Upper" />
             </LineChart>
           </ChartContainer>
         </CardContent>
@@ -219,9 +184,9 @@ export function RegionalInfoPanel() {
                   key={`anomaly-dot-${index}`}
                   x={entry.date}
                   y={entry.value}
-                  r={6} 
+                  r={6}
                   fill="var(--color-anomalyDot)"
-                  stroke="hsl(var(--background))" 
+                  stroke="hsl(var(--background))"
                   strokeWidth={2}
                   ifOverflow="extendDomain"
                   aria-label={`Anomaly at ${entry.date} with value ${entry.value}`}
@@ -234,4 +199,3 @@ export function RegionalInfoPanel() {
     </div>
   );
 }
-

@@ -1,0 +1,255 @@
+
+[
+  {
+    "date": "Jan 2021",
+    "actual": 27.26,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Feb 2021",
+    "actual": 43.58,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Mar 2021",
+    "actual": 53.27,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Apr 2021",
+    "actual": 45.02,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "May 2021",
+    "actual": 33.89,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Jun 2021",
+    "actual": 23.65,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Jul 2021",
+    "actual": 13.66,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Aug 2021",
+    "actual": 7.49,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Sep 2021",
+    "actual": 14.56,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Oct 2021",
+    "actual": 19.09,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Nov 2021",
+    "actual": 35.74,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Dec 2021",
+    "actual": 43.03,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Jan 2022",
+    "actual": 47.02,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Feb 2022",
+    "actual": 63.14,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Mar 2022",
+    "actual": 72.59,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Apr 2022",
+    "actual": 64.07,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "May 2022",
+    "actual": 52.69,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Jun 2022",
+    "actual": 42.43,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Jul 2022",
+    "actual": 32.41,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Aug 2022",
+    "actual": 26.25,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Sep 2022",
+    "actual": 33.45,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Oct 2022",
+    "actual": 37.81,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Nov 2022",
+    "actual": 54.26,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Dec 2022",
+    "actual": 61.41,
+    "forecast": null,
+    "confidence": null
+  },
+  {
+    "date": "Jan 2023",
+    "actual": null,
+    "forecast": 64.73,
+    "confidence": [
+      57.77,
+      71.69
+    ]
+  },
+  {
+    "date": "Feb 2023",
+    "actual": null,
+    "forecast": 73.34,
+    "confidence": [
+      65.3,
+      81.38
+    ]
+  },
+  {
+    "date": "Mar 2023",
+    "actual": null,
+    "forecast": 94.14,
+    "confidence": [
+      84.79,
+      103.49
+    ]
+  },
+  {
+    "date": "Apr 2023",
+    "actual": null,
+    "forecast": 84.41,
+    "confidence": [
+      78.04,
+      90.78
+    ]
+  },
+  {
+    "date": "May 2023",
+    "actual": null,
+    "forecast": 70.51,
+    "confidence": [
+      60.73,
+      80.29
+    ]
+  },
+  {
+    "date": "Jun 2023",
+    "actual": null,
+    "forecast": 54.38,
+    "confidence": [
+      47.03,
+      61.73
+    ]
+  },
+  {
+    "date": "Jul 2023",
+    "actual": null,
+    "forecast": 48.45,
+    "confidence": [
+      38.73,
+      58.17
+    ]
+  },
+  {
+    "date": "Aug 2023",
+    "actual": null,
+    "forecast": 44.23,
+    "confidence": [
+      34.64,
+      53.82
+    ]
+  },
+  {
+    "date": "Sep 2023",
+    "actual": null,
+    "forecast": 48.27,
+    "confidence": [
+      42.53,
+      54.01
+    ]
+  },
+  {
+    "date": "Oct 2023",
+    "actual": null,
+    "forecast": 58.28,
+    "confidence": [
+      50.32,
+      66.24
+    ]
+  },
+  {
+    "date": "Nov 2023",
+    "actual": null,
+    "forecast": 70.82,
+    "confidence": [
+      63.7,
+      77.94
+    ]
+  },
+  {
+    "date": "Dec 2023",
+    "actual": null,
+    "forecast": 84.18,
+    "confidence": [
+      75.07,
+      93.29
+    ]
+  }
+]
