@@ -6,6 +6,7 @@ import { LayerToggles } from '@/components/dashboard/LayerToggles';
 import { TimeSlider } from '@/components/dashboard/TimeSlider';
 import { RegionalInfoPanel } from '@/components/dashboard/RegionalInfoPanel';
 import { InsightsGenerator } from '@/components/dashboard/InsightsGenerator';
+import { RegionSelector } from '@/components/dashboard/RegionSelector'; // Added
 import { SidebarSeparator } from '@/components/ui/sidebar';
 import { DashboardProvider } from '@/context/DashboardContext';
 
@@ -13,6 +14,8 @@ import { DashboardProvider } from '@/context/DashboardContext';
 function DashboardContent() {
   const sidebarContent = (
     <>
+      <RegionSelector /> {/* Added */}
+      <SidebarSeparator />
       <LayerToggles />
       <SidebarSeparator />
       <TimeSlider />

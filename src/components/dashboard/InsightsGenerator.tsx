@@ -1,10 +1,12 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { insightsFormSchema, type InsightsFormValues } from '@/lib/schemas';
 import { handleGenerateInsights } from '@/app/actions';
+import { useDashboardContext } from '@/context/DashboardContext';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +30,7 @@ export function InsightsGenerator() {
   const [isLoading, setIsLoading] = useState(false);
   const [generatedSummary, setGeneratedSummary] = useState<string | null>(null);
   const { toast } = useToast();
+  const { selectedRegion, availableRegions } = useDashboardContext();
 
   const form = useForm<InsightsFormValues>({
     resolver: zodResolver(insightsFormSchema),
@@ -38,6 +41,12 @@ export function InsightsGenerator() {
       climateConditions: [],
     },
   });
+
+  useEffect(() => {
+    if (selectedRegion && form.getValues('region') !== selectedRegion) {
+      form.setValue('region', selectedRegion);
+    }
+  }, [selectedRegion, form]);
 
   async function onSubmit(values: InsightsFormValues) {
     setIsLoading(true);
@@ -50,7 +59,7 @@ export function InsightsGenerator() {
     if (result.success && result.data) {
       setGeneratedSummary(result.data.summary);
       toast({ title: 'Insights Generated!', description: 'The AI summary is now available.', variant: 'default' });
-      form.reset(); // Optionally reset form on success
+      // form.reset(); // Optionally reset form on success - Keep form values for now
     } else {
       if (result.fieldErrors) {
          Object.entries(result.fieldErrors).forEach(([field, errors]) => {
@@ -82,8 +91,51 @@ export function InsightsGenerator() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Region</FormLabel>
+                   <Select 
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        // Optionally, also update context if this select should drive chart filtering too
+                        // setSelectedRegion(value); 
+                      }} 
+                      value={field.value}
+                    >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a region" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {availableRegions.length > 0 ? (
+                        availableRegions.map((regionName) => (
+                          <SelectItem key={regionName} value={regionName}>
+                            {regionName}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="loading" disabled>Loading regions...</SelectItem>
+                      )}
+                       {/* Allow typing a custom region if not in list */}
+                       {field.value && !availableRegions.includes(field.value) && (
+                          <SelectItem value={field.value} disabled>
+                            {field.value} (Custom)
+                          </SelectItem>
+                        )}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Select a region or type a custom one below if not listed.
+                  </FormDescription>
                   <FormControl>
-                    <Input placeholder="e.g., District Name, Country" {...field} />
+                     {/* Hidden input to allow custom values if needed, or rely on Select's creatable features if available/added */}
+                    <Input 
+                      placeholder="Or type custom region (e.g., District)" 
+                      {...field} 
+                      onChange={(e) => {
+                        field.onChange(e.target.value);
+                         // If user types, clear any select-driven context update or ensure sync
+                      }}
+                      className="mt-1" // Add some space if both are visible
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -110,7 +162,7 @@ export function InsightsGenerator() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Disease</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || undefined}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a disease" />

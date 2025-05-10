@@ -28,13 +28,23 @@ const anomalyChartConfig = {
   anomalyDot: { label: 'Anomaly', color: 'hsl(var(--destructive))' },
 } satisfies ChartConfig;
 
+interface StlDataPoint { date: string; original: number; trend: number; seasonal: number; residual: number; }
+interface ForecastDataPoint { date: string; actual: number | null; forecast: number | null; confidence: [number, number] | null; confidenceLower?: number | null; confidenceUpper?: number | null; }
+interface AnomalyDataPoint { date: string; value: number; isAnomaly: boolean; }
+
+type StlChartDataContainer = Record<string, StlDataPoint[]>;
+type ForecastChartDataContainer = Record<string, ForecastDataPoint[]>;
+type AnomalyChartDataContainer = Record<string, AnomalyDataPoint[]>;
+
 
 export function RegionalInfoPanel() {
-  const { selectedYear } = useDashboardContext();
+  const { selectedYear, selectedRegion, setAvailableRegions, setSelectedRegion } = useDashboardContext();
   const [isMounted, setIsMounted] = useState(false);
-  const [allStlDecompositionData, setAllStlDecompositionData] = useState<any[]>([]);
-  const [allTimeSeriesForecastData, setAllTimeSeriesForecastData] = useState<any[]>([]);
-  const [allAnomalyDetectionData, setAllAnomalyDetectionData] = useState<any[]>([]);
+  
+  const [allStlDecompositionData, setAllStlDecompositionData] = useState<StlChartDataContainer>({});
+  const [allTimeSeriesForecastData, setAllTimeSeriesForecastData] = useState<ForecastChartDataContainer>({});
+  const [allAnomalyDetectionData, setAllAnomalyDetectionData] = useState<AnomalyChartDataContainer>({});
+  
   const [dataError, setDataError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -50,16 +60,27 @@ export function RegionalInfoPanel() {
         if (!forecastResponse.ok) throw new Error(`Failed to fetch forecast data: ${forecastResponse.statusText}`);
         if (!anomalyResponse.ok) throw new Error(`Failed to fetch anomaly data: ${anomalyResponse.statusText}`);
 
-        const stlJson = await stlResponse.json();
-        const forecastJson = await forecastResponse.json();
-        const anomalyJson = await anomalyResponse.json();
+        const stlJson: StlChartDataContainer = await stlResponse.json();
+        const forecastJson: ForecastChartDataContainer = await forecastResponse.json();
+        const anomalyJson: AnomalyChartDataContainer = await anomalyResponse.json();
+        
+        const regions = Object.keys(stlJson);
+        setAvailableRegions(regions);
+        if (regions.length > 0 && !selectedRegion) {
+          setSelectedRegion(regions[0]);
+        }
 
         setAllStlDecompositionData(stlJson);
-        setAllTimeSeriesForecastData(forecastJson.map((item: any) => ({
-          ...item,
-          confidenceLower: item.confidence ? item.confidence[0] : null,
-          confidenceUpper: item.confidence ? item.confidence[1] : null,
-        })));
+        
+        const processedForecastJson: ForecastChartDataContainer = {};
+        for (const region in forecastJson) {
+          processedForecastJson[region] = forecastJson[region].map((item: any) => ({
+            ...item,
+            confidenceLower: item.confidence ? item.confidence[0] : null,
+            confidenceUpper: item.confidence ? item.confidence[1] : null,
+          }));
+        }
+        setAllTimeSeriesForecastData(processedForecastJson);
         setAllAnomalyDetectionData(anomalyJson);
         setDataError(null);
       } catch (error) {
@@ -70,38 +91,44 @@ export function RegionalInfoPanel() {
       }
     }
     fetchData();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setAvailableRegions, setSelectedRegion]); // selectedRegion removed to avoid re-fetch loop on initial set
+
+  const getCurrentRegionData = <T,>(dataContainer: Record<string, T[]>): T[] => {
+    if (!selectedRegion || !dataContainer[selectedRegion]) return [];
+    return dataContainer[selectedRegion];
+  };
 
   const filteredStlData = useMemo(() => {
-    if (!selectedYear || !allStlDecompositionData.length) return allStlDecompositionData;
+    const currentRegionStlData = getCurrentRegionData(allStlDecompositionData);
+    if (!selectedYear || !currentRegionStlData.length) return currentRegionStlData;
     const yearStr = selectedYear.toString();
-    return allStlDecompositionData.filter(item => item.date && item.date.endsWith(yearStr));
-  }, [selectedYear, allStlDecompositionData]);
+    return currentRegionStlData.filter(item => item.date && item.date.endsWith(yearStr));
+  }, [selectedYear, selectedRegion, allStlDecompositionData]);
 
   const filteredForecastData = useMemo(() => {
-    if (!selectedYear || !allTimeSeriesForecastData.length) return allTimeSeriesForecastData;
+    const currentRegionForecastData = getCurrentRegionData(allTimeSeriesForecastData);
+    if (!selectedYear || !currentRegionForecastData.length) return currentRegionForecastData;
     const yearStr = selectedYear.toString();
-    // For forecast data, we want to show actual data from the selected year
-    // and forecast data that *starts* in or after the selected year if the actual data for that point is null
-    return allTimeSeriesForecastData.filter(item => {
+    return currentRegionForecastData.filter(item => {
       if (!item.date) return false;
       const itemYear = item.date.split(' ')[1];
       if (item.actual !== null) {
         return itemYear === yearStr;
       }
-      // If actual is null, it's a forecast point. Include if forecast year is >= selected year
       return parseInt(itemYear) >= selectedYear;
     });
-  }, [selectedYear, allTimeSeriesForecastData]);
+  }, [selectedYear, selectedRegion, allTimeSeriesForecastData]);
 
   const filteredAnomalyData = useMemo(() => {
-    if (!selectedYear || !allAnomalyDetectionData.length) return allAnomalyDetectionData;
+    const currentRegionAnomalyData = getCurrentRegionData(allAnomalyDetectionData);
+    if (!selectedYear || !currentRegionAnomalyData.length) return currentRegionAnomalyData;
     const yearStr = selectedYear.toString();
-    return allAnomalyDetectionData.filter(item => item.date && item.date.endsWith(yearStr));
-  }, [selectedYear, allAnomalyDetectionData]);
+    return currentRegionAnomalyData.filter(item => item.date && item.date.endsWith(yearStr));
+  }, [selectedYear, selectedRegion, allAnomalyDetectionData]);
 
 
-  if (!isMounted) {
+  if (!isMounted || !selectedRegion) {
     return (
       <div className="grid grid-cols-1 gap-6">
         {[1, 2, 3].map(key => (
@@ -115,6 +142,17 @@ export function RegionalInfoPanel() {
             </CardContent>
           </Card>
         ))}
+         <Card className="shadow-lg col-span-1">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl">
+                    <SearchCode className="h-5 w-5" />
+                    Regional Data
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p>{isMounted ? "Select a region to view data." : "Loading data and regions..."}</p>
+            </CardContent>
+        </Card>
       </div>
     );
   }
@@ -130,11 +168,13 @@ export function RegionalInfoPanel() {
             </CardHeader>
             <CardContent>
                 <p>Could not load chart data: {dataError}</p>
-                <p>Please ensure the data files are present in the `/public/data/` directory and are accessible.</p>
+                <p>Please ensure the data files are present in the `/public/data/` directory, are correctly formatted as JSON objects with regions as keys, and are accessible.</p>
             </CardContent>
         </Card>
     );
   }
+  
+  const displayedRegion = selectedRegion || "Selected Region";
 
 
   return (
@@ -144,24 +184,28 @@ export function RegionalInfoPanel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <TrendingUp className="h-5 w-5 text-primary" />
-            STL Decomposition {selectedYear && `(${selectedYear})`}
+            STL Decomposition - {displayedRegion} {selectedYear && `(${selectedYear})`}
           </CardTitle>
           <CardDescription>Seasonal-Trend-Loess decomposition of the selected metric.</CardDescription>
         </CardHeader>
         <CardContent className="h-[400px] p-0 pr-6 pb-6">
-          <ChartContainer config={stlChartConfig} className="h-full w-full">
-            <LineChart data={filteredStlData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-              <CartesianGrid vertical={false} strokeDasharray="3 3" />
-              <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
-              <YAxis tickLine={false} axisLine={false} tickMargin={8} width={60} fontSize={12}/>
-              <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
-              <ChartLegend content={<ChartLegendContent />} />
-              <Line type="monotone" dataKey="original" stroke="var(--color-original)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="trend" stroke="var(--color-trend)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="seasonal" stroke="var(--color-seasonal)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="residual" stroke="var(--color-residual)" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ChartContainer>
+          {filteredStlData.length > 0 ? (
+            <ChartContainer config={stlChartConfig} className="h-full w-full">
+              <LineChart data={filteredStlData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
+                <YAxis tickLine={false} axisLine={false} tickMargin={8} width={60} fontSize={12}/>
+                <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Line type="monotone" dataKey="original" stroke="var(--color-original)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="trend" stroke="var(--color-trend)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="seasonal" stroke="var(--color-seasonal)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="residual" stroke="var(--color-residual)" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ChartContainer>
+          ) : (
+            <div className="flex items-center justify-center h-full text-muted-foreground">No STL data available for {displayedRegion} in {selectedYear}.</div>
+          )}
         </CardContent>
       </Card>
 
@@ -170,24 +214,28 @@ export function RegionalInfoPanel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <SearchCode className="h-5 w-5 text-primary" />
-            Time Series Forecast {selectedYear && `(Actuals for ${selectedYear}, Forecast beyond)`}
+            Time Series Forecast - {displayedRegion} {selectedYear && `(Actuals for ${selectedYear}, Forecast beyond)`}
           </CardTitle>
           <CardDescription>Forecast of the selected metric with confidence intervals.</CardDescription>
         </CardHeader>
         <CardContent className="h-[400px] p-0 pr-6 pb-6">
-          <ChartContainer config={forecastChartConfig} className="h-full w-full">
-            <LineChart data={filteredForecastData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-              <CartesianGrid vertical={false} strokeDasharray="3 3" />
-              <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
-              <YAxis tickLine={false} axisLine={false} tickMargin={8} width={60} fontSize={12}/>
-              <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
-              <ChartLegend content={<ChartLegendContent />} />
-              <Line connectNulls type="monotone" dataKey="actual" stroke="var(--color-actual)" strokeWidth={2} dot={false} />
-              <Line connectNulls type="monotone" dataKey="forecast" stroke="var(--color-forecast)" strokeWidth={2} dot={false} strokeDasharray="5 5" />
-              <Line connectNulls type="monotone" dataKey="confidenceLower" stroke="var(--color-confidenceLower)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Lower" />
-              <Line connectNulls type="monotone" dataKey="confidenceUpper" stroke="var(--color-confidenceUpper)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Upper" />
-            </LineChart>
-          </ChartContainer>
+         {filteredForecastData.length > 0 ? (
+            <ChartContainer config={forecastChartConfig} className="h-full w-full">
+              <LineChart data={filteredForecastData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
+                <YAxis tickLine={false} axisLine={false} tickMargin={8} width={60} fontSize={12}/>
+                <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Line connectNulls type="monotone" dataKey="actual" stroke="var(--color-actual)" strokeWidth={2} dot={false} />
+                <Line connectNulls type="monotone" dataKey="forecast" stroke="var(--color-forecast)" strokeWidth={2} dot={false} strokeDasharray="5 5" />
+                <Line connectNulls type="monotone" dataKey="confidenceLower" stroke="var(--color-confidenceLower)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Lower" />
+                <Line connectNulls type="monotone" dataKey="confidenceUpper" stroke="var(--color-confidenceUpper)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Upper" />
+              </LineChart>
+            </ChartContainer>
+          ) : (
+            <div className="flex items-center justify-center h-full text-muted-foreground">No forecast data available for {displayedRegion} in {selectedYear}.</div>
+          )}
         </CardContent>
       </Card>
 
@@ -196,34 +244,38 @@ export function RegionalInfoPanel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <AlertTriangle className="h-5 w-5 text-primary" />
-            Anomaly Detection {selectedYear && `(${selectedYear})`}
+            Anomaly Detection - {displayedRegion} {selectedYear && `(${selectedYear})`}
           </CardTitle>
           <CardDescription>Detected anomalies in the observed data.</CardDescription>
         </CardHeader>
         <CardContent className="h-[400px] p-0 pr-6 pb-6">
-          <ChartContainer config={anomalyChartConfig} className="h-full w-full">
-            <LineChart data={filteredAnomalyData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-              <CartesianGrid vertical={false} strokeDasharray="3 3" />
-              <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
-              <YAxis tickLine={false} axisLine={false} tickMargin={8} width={60} fontSize={12}/>
-              <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
-              <ChartLegend content={<ChartLegendContent />} />
-              <Line type="monotone" dataKey="value" stroke="var(--color-value)" strokeWidth={2} dot={false} />
-              {filteredAnomalyData.filter(d => d.isAnomaly).map((entry, index) => (
-                <ReferenceDot
-                  key={`anomaly-dot-${index}`}
-                  x={entry.date}
-                  y={entry.value}
-                  r={6}
-                  fill="var(--color-anomalyDot)"
-                  stroke="hsl(var(--background))"
-                  strokeWidth={2}
-                  ifOverflow="extendDomain"
-                  aria-label={`Anomaly at ${entry.date} with value ${entry.value}`}
-                />
-              ))}
-            </LineChart>
-          </ChartContainer>
+          {filteredAnomalyData.length > 0 ? (
+            <ChartContainer config={anomalyChartConfig} className="h-full w-full">
+              <LineChart data={filteredAnomalyData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
+                <YAxis tickLine={false} axisLine={false} tickMargin={8} width={60} fontSize={12}/>
+                <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Line type="monotone" dataKey="value" stroke="var(--color-value)" strokeWidth={2} dot={false} />
+                {filteredAnomalyData.filter(d => d.isAnomaly).map((entry, index) => (
+                  <ReferenceDot
+                    key={`anomaly-dot-${index}`}
+                    x={entry.date}
+                    y={entry.value}
+                    r={6}
+                    fill="var(--color-anomalyDot)"
+                    stroke="hsl(var(--background))"
+                    strokeWidth={2}
+                    ifOverflow="extendDomain"
+                    aria-label={`Anomaly at ${entry.date} with value ${entry.value}`}
+                  />
+                ))}
+              </LineChart>
+            </ChartContainer>
+          ) : (
+            <div className="flex items-center justify-center h-full text-muted-foreground">No anomaly data available for {displayedRegion} in {selectedYear}.</div>
+          )}
         </CardContent>
       </Card>
     </div>

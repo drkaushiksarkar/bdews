@@ -1,255 +1,155 @@
-
-[
-  {
-    "date": "Jan 2021",
-    "actual": 27.26,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Feb 2021",
-    "actual": 43.58,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Mar 2021",
-    "actual": 53.27,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Apr 2021",
-    "actual": 45.02,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "May 2021",
-    "actual": 33.89,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Jun 2021",
-    "actual": 23.65,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Jul 2021",
-    "actual": 13.66,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Aug 2021",
-    "actual": 7.49,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Sep 2021",
-    "actual": 14.56,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Oct 2021",
-    "actual": 19.09,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Nov 2021",
-    "actual": 35.74,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Dec 2021",
-    "actual": 43.03,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Jan 2022",
-    "actual": 47.02,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Feb 2022",
-    "actual": 63.14,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Mar 2022",
-    "actual": 72.59,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Apr 2022",
-    "actual": 64.07,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "May 2022",
-    "actual": 52.69,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Jun 2022",
-    "actual": 42.43,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Jul 2022",
-    "actual": 32.41,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Aug 2022",
-    "actual": 26.25,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Sep 2022",
-    "actual": 33.45,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Oct 2022",
-    "actual": 37.81,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Nov 2022",
-    "actual": 54.26,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Dec 2022",
-    "actual": 61.41,
-    "forecast": null,
-    "confidence": null
-  },
-  {
-    "date": "Jan 2023",
-    "actual": null,
-    "forecast": 64.73,
-    "confidence": [
-      57.77,
-      71.69
-    ]
-  },
-  {
-    "date": "Feb 2023",
-    "actual": null,
-    "forecast": 73.34,
-    "confidence": [
-      65.3,
-      81.38
-    ]
-  },
-  {
-    "date": "Mar 2023",
-    "actual": null,
-    "forecast": 94.14,
-    "confidence": [
-      84.79,
-      103.49
-    ]
-  },
-  {
-    "date": "Apr 2023",
-    "actual": null,
-    "forecast": 84.41,
-    "confidence": [
-      78.04,
-      90.78
-    ]
-  },
-  {
-    "date": "May 2023",
-    "actual": null,
-    "forecast": 70.51,
-    "confidence": [
-      60.73,
-      80.29
-    ]
-  },
-  {
-    "date": "Jun 2023",
-    "actual": null,
-    "forecast": 54.38,
-    "confidence": [
-      47.03,
-      61.73
-    ]
-  },
-  {
-    "date": "Jul 2023",
-    "actual": null,
-    "forecast": 48.45,
-    "confidence": [
-      38.73,
-      58.17
-    ]
-  },
-  {
-    "date": "Aug 2023",
-    "actual": null,
-    "forecast": 44.23,
-    "confidence": [
-      34.64,
-      53.82
-    ]
-  },
-  {
-    "date": "Sep 2023",
-    "actual": null,
-    "forecast": 48.27,
-    "confidence": [
-      42.53,
-      54.01
-    ]
-  },
-  {
-    "date": "Oct 2023",
-    "actual": null,
-    "forecast": 58.28,
-    "confidence": [
-      50.32,
-      66.24
-    ]
-  },
-  {
-    "date": "Nov 2023",
-    "actual": null,
-    "forecast": 70.82,
-    "confidence": [
-      63.7,
-      77.94
-    ]
-  },
-  {
-    "date": "Dec 2023",
-    "actual": null,
-    "forecast": 84.18,
-    "confidence": [
-      75.07,
-      93.29
-    ]
-  }
-]
+{
+  "Dhaka": [
+    { "date": "Jan 2021", "actual": 27.26, "forecast": null, "confidence": null },
+    { "date": "Feb 2021", "actual": 43.58, "forecast": null, "confidence": null },
+    { "date": "Mar 2021", "actual": 53.27, "forecast": null, "confidence": null },
+    { "date": "Apr 2021", "actual": 45.02, "forecast": null, "confidence": null },
+    { "date": "May 2021", "actual": 33.89, "forecast": null, "confidence": null },
+    { "date": "Jun 2021", "actual": 23.65, "forecast": null, "confidence": null },
+    { "date": "Jul 2021", "actual": 13.66, "forecast": null, "confidence": null },
+    { "date": "Aug 2021", "actual": 7.49, "forecast": null, "confidence": null },
+    { "date": "Sep 2021", "actual": 14.56, "forecast": null, "confidence": null },
+    { "date": "Oct 2021", "actual": 19.09, "forecast": null, "confidence": null },
+    { "date": "Nov 2021", "actual": 35.74, "forecast": null, "confidence": null },
+    { "date": "Dec 2021", "actual": 43.03, "forecast": null, "confidence": null },
+    { "date": "Jan 2022", "actual": 47.02, "forecast": null, "confidence": null },
+    { "date": "Feb 2022", "actual": 63.14, "forecast": null, "confidence": null },
+    { "date": "Mar 2022", "actual": 72.59, "forecast": null, "confidence": null },
+    { "date": "Apr 2022", "actual": 64.07, "forecast": null, "confidence": null },
+    { "date": "May 2022", "actual": 52.69, "forecast": null, "confidence": null },
+    { "date": "Jun 2022", "actual": 42.43, "forecast": null, "confidence": null },
+    { "date": "Jul 2022", "actual": 32.41, "forecast": null, "confidence": null },
+    { "date": "Aug 2022", "actual": 26.25, "forecast": null, "confidence": null },
+    { "date": "Sep 2022", "actual": 33.45, "forecast": null, "confidence": null },
+    { "date": "Oct 2022", "actual": 37.81, "forecast": null, "confidence": null },
+    { "date": "Nov 2022", "actual": 54.26, "forecast": null, "confidence": null },
+    { "date": "Dec 2022", "actual": 61.41, "forecast": null, "confidence": null },
+    { "date": "Jan 2023", "actual": null, "forecast": 64.73, "confidence": [57.77, 71.69] },
+    { "date": "Feb 2023", "actual": null, "forecast": 73.34, "confidence": [65.30, 81.38] },
+    { "date": "Mar 2023", "actual": null, "forecast": 94.14, "confidence": [84.79, 103.49] },
+    { "date": "Apr 2023", "actual": null, "forecast": 84.41, "confidence": [78.04, 90.78] },
+    { "date": "May 2023", "actual": null, "forecast": 70.51, "confidence": [60.73, 80.29] },
+    { "date": "Jun 2023", "actual": null, "forecast": 54.38, "confidence": [47.03, 61.73] },
+    { "date": "Jul 2023", "actual": null, "forecast": 48.45, "confidence": [38.73, 58.17] },
+    { "date": "Aug 2023", "actual": null, "forecast": 44.23, "confidence": [34.64, 53.82] },
+    { "date": "Sep 2023", "actual": null, "forecast": 48.27, "confidence": [42.53, 54.01] },
+    { "date": "Oct 2023", "actual": null, "forecast": 58.28, "confidence": [50.32, 66.24] },
+    { "date": "Nov 2023", "actual": null, "forecast": 70.82, "confidence": [63.70, 77.94] },
+    { "date": "Dec 2023", "actual": null, "forecast": 84.18, "confidence": [75.07, 93.29] }
+  ],
+  "Chittagong": [
+    { "date": "Jan 2021", "actual": 30.15, "forecast": null, "confidence": null },
+    { "date": "Feb 2021", "actual": 45.90, "forecast": null, "confidence": null },
+    { "date": "Mar 2021", "actual": 55.70, "forecast": null, "confidence": null },
+    { "date": "Apr 2021", "actual": 48.20, "forecast": null, "confidence": null },
+    { "date": "May 2021", "actual": 37.80, "forecast": null, "confidence": null },
+    { "date": "Jun 2021", "actual": 27.50, "forecast": null, "confidence": null },
+    { "date": "Jul 2021", "actual": 18.30, "forecast": null, "confidence": null },
+    { "date": "Aug 2021", "actual": 12.10, "forecast": null, "confidence": null },
+    { "date": "Sep 2021", "actual": 19.00, "forecast": null, "confidence": null },
+    { "date": "Oct 2021", "actual": 24.50, "forecast": null, "confidence": null },
+    { "date": "Nov 2021", "actual": 38.60, "forecast": null, "confidence": null },
+    { "date": "Dec 2021", "actual": 46.00, "forecast": null, "confidence": null },
+    { "date": "Jan 2022", "actual": 50.00, "forecast": null, "confidence": null },
+    { "date": "Feb 2022", "actual": 66.00, "forecast": null, "confidence": null },
+    { "date": "Mar 2022", "actual": 75.00, "forecast": null, "confidence": null },
+    { "date": "Apr 2022", "actual": 67.80, "forecast": null, "confidence": null },
+    { "date": "May 2022", "actual": 55.90, "forecast": null, "confidence": null },
+    { "date": "Jun 2022", "actual": 45.00, "forecast": null, "confidence": null },
+    { "date": "Jul 2022", "actual": 35.50, "forecast": null, "confidence": null },
+    { "date": "Aug 2022", "actual": 29.00, "forecast": null, "confidence": null },
+    { "date": "Sep 2022", "actual": 36.70, "forecast": null, "confidence": null },
+    { "date": "Oct 2022", "actual": 40.00, "forecast": null, "confidence": null },
+    { "date": "Nov 2022", "actual": 57.00, "forecast": null, "confidence": null },
+    { "date": "Dec 2022", "actual": 64.00, "forecast": null, "confidence": null },
+    { "date": "Jan 2023", "actual": null, "forecast": 68.00, "confidence": [60.50, 75.50] },
+    { "date": "Feb 2023", "actual": null, "forecast": 77.00, "confidence": [68.00, 86.00] },
+    { "date": "Mar 2023", "actual": null, "forecast": 98.00, "confidence": [88.00, 108.00] },
+    { "date": "Apr 2023", "actual": null, "forecast": 88.00, "confidence": [81.00, 95.00] },
+    { "date": "May 2023", "actual": null, "forecast": 74.00, "confidence": [63.00, 85.00] },
+    { "date": "Jun 2023", "actual": null, "forecast": 58.00, "confidence": [50.00, 66.00] },
+    { "date": "Jul 2023", "actual": null, "forecast": 52.00, "confidence": [42.00, 62.00] },
+    { "date": "Aug 2023", "actual": null, "forecast": 48.00, "confidence": [38.00, 58.00] },
+    { "date": "Sep 2023", "actual": null, "forecast": 52.50, "confidence": [46.00, 59.00] },
+    { "date": "Oct 2023", "actual": null, "forecast": 62.00, "confidence": [53.50, 70.50] },
+    { "date": "Nov 2023", "actual": null, "forecast": 74.00, "confidence": [66.50, 81.50] },
+    { "date": "Dec 2023", "actual": null, "forecast": 88.00, "confidence": [78.50, 97.50] }
+  ],
+  "Freetown": [
+    { "date": "Jan 2021", "actual": 22.50, "forecast": null, "confidence": null },
+    { "date": "Feb 2021", "actual": 38.00, "forecast": null, "confidence": null },
+    { "date": "Mar 2021", "actual": 47.00, "forecast": null, "confidence": null },
+    { "date": "Apr 2021", "actual": 40.00, "forecast": null, "confidence": null },
+    { "date": "May 2021", "actual": 29.00, "forecast": null, "confidence": null },
+    { "date": "Jun 2021", "actual": 19.50, "forecast": null, "confidence": null },
+    { "date": "Jul 2021", "actual": 10.20, "forecast": null, "confidence": null },
+    { "date": "Aug 2021", "actual": 5.00, "forecast": null, "confidence": null },
+    { "date": "Sep 2021", "actual": 10.80, "forecast": null, "confidence": null },
+    { "date": "Oct 2021", "actual": 15.30, "forecast": null, "confidence": null },
+    { "date": "Nov 2021", "actual": 30.00, "forecast": null, "confidence": null },
+    { "date": "Dec 2021", "actual": 38.00, "forecast": null, "confidence": null },
+    { "date": "Jan 2022", "actual": 41.50, "forecast": null, "confidence": null },
+    { "date": "Feb 2022", "actual": 57.00, "forecast": null, "confidence": null },
+    { "date": "Mar 2022", "actual": 66.00, "forecast": null, "confidence": null },
+    { "date": "Apr 2022", "actual": 58.00, "forecast": null, "confidence": null },
+    { "date": "May 2022", "actual": 47.50, "forecast": null, "confidence": null },
+    { "date": "Jun 2022", "actual": 38.00, "forecast": null, "confidence": null },
+    { "date": "Jul 2022", "actual": 28.50, "forecast": null, "confidence": null },
+    { "date": "Aug 2022", "actual": 22.00, "forecast": null, "confidence": null },
+    { "date": "Sep 2022", "actual": 29.00, "forecast": null, "confidence": null },
+    { "date": "Oct 2022", "actual": 33.00, "forecast": null, "confidence": null },
+    { "date": "Nov 2022", "actual": 48.00, "forecast": null, "confidence": null },
+    { "date": "Dec 2022", "actual": 55.00, "forecast": null, "confidence": null },
+    { "date": "Jan 2023", "actual": null, "forecast": 58.00, "confidence": [51.50, 64.50] },
+    { "date": "Feb 2023", "actual": null, "forecast": 66.00, "confidence": [58.50, 73.50] },
+    { "date": "Mar 2023", "actual": null, "forecast": 86.00, "confidence": [77.00, 95.00] },
+    { "date": "Apr 2023", "actual": null, "forecast": 77.00, "confidence": [70.00, 84.00] },
+    { "date": "May 2023", "actual": null, "forecast": 64.00, "confidence": [54.00, 74.00] },
+    { "date": "Jun 2023", "actual": null, "forecast": 49.00, "confidence": [42.00, 56.00] },
+    { "date": "Jul 2023", "actual": null, "forecast": 43.00, "confidence": [34.00, 52.00] },
+    { "date": "Aug 2023", "actual": null, "forecast": 39.00, "confidence": [30.00, 48.00] },
+    { "date": "Sep 2023", "actual": null, "forecast": 43.50, "confidence": [38.00, 49.00] },
+    { "date": "Oct 2023", "actual": null, "forecast": 52.00, "confidence": [44.50, 59.50] },
+    { "date": "Nov 2023", "actual": null, "forecast": 64.00, "confidence": [57.00, 71.00] },
+    { "date": "Dec 2023", "actual": null, "forecast": 77.00, "confidence": [68.00, 86.00] }
+  ],
+   "Bo": [
+    { "date": "Jan 2021", "actual": 20.00, "forecast": null, "confidence": null },
+    { "date": "Feb 2021", "actual": 35.00, "forecast": null, "confidence": null },
+    { "date": "Mar 2021", "actual": 44.00, "forecast": null, "confidence": null },
+    { "date": "Apr 2021", "actual": 37.00, "forecast": null, "confidence": null },
+    { "date": "May 2021", "actual": 26.50, "forecast": null, "confidence": null },
+    { "date": "Jun 2021", "actual": 17.00, "forecast": null, "confidence": null },
+    { "date": "Jul 2021", "actual": 8.00, "forecast": null, "confidence": null },
+    { "date": "Aug 2021", "actual": 3.50, "forecast": null, "confidence": null },
+    { "date": "Sep 2021", "actual": 9.00, "forecast": null, "confidence": null },
+    { "date": "Oct 2021", "actual": 13.00, "forecast": null, "confidence": null },
+    { "date": "Nov 2021", "actual": 27.00, "forecast": null, "confidence": null },
+    { "date": "Dec 2021", "actual": 35.00, "forecast": null, "confidence": null },
+    { "date": "Jan 2022", "actual": 38.00, "forecast": null, "confidence": null },
+    { "date": "Feb 2022", "actual": 53.00, "forecast": null, "confidence": null },
+    { "date": "Mar 2022", "actual": 62.00, "forecast": null, "confidence": null },
+    { "date": "Apr 2022", "actual": 54.00, "forecast": null, "confidence": null },
+    { "date": "May 2022", "actual": 44.00, "forecast": null, "confidence": null },
+    { "date": "Jun 2022", "actual": 35.00, "forecast": null, "confidence": null },
+    { "date": "Jul 2022", "actual": 25.00, "forecast": null, "confidence": null },
+    { "date": "Aug 2022", "actual": 19.00, "forecast": null, "confidence": null },
+    { "date": "Sep 2022", "actual": 26.00, "forecast": null, "confidence": null },
+    { "date": "Oct 2022", "actual": 30.00, "forecast": null, "confidence": null },
+    { "date": "Nov 2022", "actual": 44.50, "forecast": null, "confidence": null },
+    { "date": "Dec 2022", "actual": 51.00, "forecast": null, "confidence": null },
+    { "date": "Jan 2023", "actual": null, "forecast": 54.00, "confidence": [48.00, 60.00] },
+    { "date": "Feb 2023", "actual": null, "forecast": 62.00, "confidence": [55.00, 69.00] },
+    { "date": "Mar 2023", "actual": null, "forecast": 81.00, "confidence": [72.00, 90.00] },
+    { "date": "Apr 2023", "actual": null, "forecast": 72.50, "confidence": [66.00, 79.00] },
+    { "date": "May 2023", "actual": null, "forecast": 60.00, "confidence": [50.00, 70.00] },
+    { "date": "Jun 2023", "actual": null, "forecast": 45.00, "confidence": [38.00, 52.00] },
+    { "date": "Jul 2023", "actual": null, "forecast": 39.00, "confidence": [30.00, 48.00] },
+    { "date": "Aug 2023", "actual": null, "forecast": 35.00, "confidence": [26.00, 44.00] },
+    { "date": "Sep 2023", "actual": null, "forecast": 39.50, "confidence": [34.00, 45.00] },
+    { "date": "Oct 2023", "actual": null, "forecast": 48.00, "confidence": [40.00, 56.00] },
+    { "date": "Nov 2023", "actual": null, "forecast": 60.00, "confidence": [53.00, 67.00] },
+    { "date": "Dec 2023", "actual": null, "forecast": 72.00, "confidence": [63.00, 81.00] }
+  ]
+}
+    

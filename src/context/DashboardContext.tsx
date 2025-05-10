@@ -7,17 +7,18 @@ import { createContext, useContext, useState, useEffect } from 'react';
 interface DashboardContextProps {
   selectedYear: number | undefined;
   setSelectedYear: Dispatch<SetStateAction<number | undefined>>;
-  // Add other shared states here as needed, e.g.:
-  // selectedRegion: string | undefined;
-  // setSelectedRegion: Dispatch<SetStateAction<string | undefined>>;
-  // activeLayers: Record<string, boolean>;
-  // setActiveLayers: Dispatch<SetStateAction<Record<string, boolean>>>;
+  selectedRegion: string | undefined;
+  setSelectedRegion: Dispatch<SetStateAction<string | undefined>>;
+  availableRegions: string[];
+  setAvailableRegions: Dispatch<SetStateAction<string[]>>;
 }
 
 const DashboardContext = createContext<DashboardContextProps | undefined>(undefined);
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
   const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined);
+  const [selectedRegion, setSelectedRegion] = useState<string | undefined>(undefined);
+  const [availableRegions, setAvailableRegions] = useState<string[]>([]);
 
   useEffect(() => {
     // Set initial year on mount
@@ -26,9 +27,19 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  useEffect(() => {
+    if (availableRegions.length > 0 && !selectedRegion) {
+      setSelectedRegion(availableRegions[0]);
+    }
+  }, [availableRegions, selectedRegion]);
+
 
   return (
-    <DashboardContext.Provider value={{ selectedYear, setSelectedYear }}>
+    <DashboardContext.Provider value={{ 
+      selectedYear, setSelectedYear,
+      selectedRegion, setSelectedRegion,
+      availableRegions, setAvailableRegions
+    }}>
       {children}
     </DashboardContext.Provider>
   );
@@ -41,3 +52,4 @@ export function useDashboardContext() {
   }
   return context;
 }
+

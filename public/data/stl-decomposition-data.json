@@ -1,255 +1,155 @@
-
-[
-  {
-    "date": "Jan 2021",
-    "original": 56.75,
-    "trend": 50.08,
-    "seasonal": 5.01,
-    "residual": 1.66
-  },
-  {
-    "date": "Feb 2021",
-    "original": 55.26,
-    "trend": 50.72,
-    "seasonal": 8.41,
-    "residual": -3.87
-  },
-  {
-    "date": "Mar 2021",
-    "original": 70.41,
-    "trend": 52.4,
-    "seasonal": 9.93,
-    "residual": 8.08
-  },
-  {
-    "date": "Apr 2021",
-    "original": 57.99,
-    "trend": 52.35,
-    "seasonal": 8.27,
-    "residual": -2.63
-  },
-  {
-    "date": "May 2021",
-    "original": 53.34,
-    "trend": 52.66,
-    "seasonal": 4.68,
-    "residual": -3.99
-  },
-  {
-    "date": "Jun 2021",
-    "original": 46.17,
-    "trend": 53.48,
-    "seasonal": -0.34,
-    "residual": -6.97
-  },
-  {
-    "date": "Jul 2021",
-    "original": 44.92,
-    "trend": 53.4,
-    "seasonal": -5.16,
-    "residual": -3.32
-  },
-  {
-    "date": "Aug 2021",
-    "original": 41.73,
-    "trend": 52.8,
-    "seasonal": -8.71,
-    "residual": -2.36
-  },
-  {
-    "date": "Sep 2021",
-    "original": 49.73,
-    "trend": 54.1,
-    "seasonal": -10.06,
-    "residual": 5.69
-  },
-  {
-    "date": "Oct 2021",
-    "original": 43.06,
-    "trend": 53.43,
-    "seasonal": -8.51,
-    "residual": -1.9
-  },
-  {
-    "date": "Nov 2021",
-    "original": 51.17,
-    "trend": 54.43,
-    "seasonal": -4.65,
-    "residual": 1.38
-  },
-  {
-    "date": "Dec 2021",
-    "original": 52.49,
-    "trend": 56.04,
-    "seasonal": 0.02,
-    "residual": -3.57
-  },
-  {
-    "date": "Jan 2022",
-    "original": 65.73,
-    "trend": 57.22,
-    "seasonal": 5.01,
-    "residual": 3.5
-  },
-  {
-    "date": "Feb 2022",
-    "original": 64.02,
-    "trend": 57.63,
-    "seasonal": 8.41,
-    "residual": -2.02
-  },
-  {
-    "date": "Mar 2022",
-    "original": 78.93,
-    "trend": 59.1,
-    "seasonal": 9.93,
-    "residual": 9.9
-  },
-  {
-    "date": "Apr 2022",
-    "original": 66.36,
-    "trend": 58.87,
-    "seasonal": 8.27,
-    "residual": -0.78
-  },
-  {
-    "date": "May 2022",
-    "original": 61.58,
-    "trend": 59.02,
-    "seasonal": 4.68,
-    "residual": -2.11
-  },
-  {
-    "date": "Jun 2022",
-    "original": 54.39,
-    "trend": 59.75,
-    "seasonal": -0.34,
-    "residual": -5.02
-  },
-  {
-    "date": "Jul 2022",
-    "original": 53.14,
-    "trend": 59.63,
-    "seasonal": -5.16,
-    "residual": -1.33
-  },
-  {
-    "date": "Aug 2022",
-    "original": 49.94,
-    "trend": 59.03,
-    "seasonal": -8.71,
-    "residual": -0.38
-  },
-  {
-    "date": "Sep 2022",
-    "original": 58.05,
-    "trend": 60.34,
-    "seasonal": -10.06,
-    "residual": 7.78
-  },
-  {
-    "date": "Oct 2022",
-    "original": 51.18,
-    "trend": 59.67,
-    "seasonal": -8.51,
-    "residual": 0.02
-  },
-  {
-    "date": "Nov 2022",
-    "original": 59.38,
-    "trend": 60.68,
-    "seasonal": -4.65,
-    "residual": 3.34
-  },
-  {
-    "date": "Dec 2022",
-    "original": 60.85,
-    "trend": 62.29,
-    "seasonal": 0.02,
-    "residual": -1.46
-  },
-  {
-    "date": "Jan 2023",
-    "original": 73.98,
-    "trend": 63.46,
-    "seasonal": 5.01,
-    "residual": 5.51
-  },
-  {
-    "date": "Feb 2023",
-    "original": 72.03,
-    "trend": 63.87,
-    "seasonal": 8.41,
-    "residual": -0.25
-  },
-  {
-    "date": "Mar 2023",
-    "original": 86.73,
-    "trend": 65.33,
-    "seasonal": 9.93,
-    "residual": 11.47
-  },
-  {
-    "date": "Apr 2023",
-    "original": 74.03,
-    "trend": 65.09,
-    "seasonal": 8.27,
-    "residual": 0.67
-  },
-  {
-    "date": "May 2023",
-    "original": 69.12,
-    "trend": 65.24,
-    "seasonal": 4.68,
-    "residual": -0.79
-  },
-  {
-    "date": "Jun 2023",
-    "original": 61.93,
-    "trend": 65.97,
-    "seasonal": -0.34,
-    "residual": -3.7
-  },
-  {
-    "date": "Jul 2023",
-    "original": 60.66,
-    "trend": 65.84,
-    "seasonal": -5.16,
-    "residual": 0.0
-  },
-  {
-    "date": "Aug 2023",
-    "original": 57.48,
-    "trend": 65.25,
-    "seasonal": -8.71,
-    "residual": 0.94
-  },
-  {
-    "date": "Sep 2023",
-    "original": 65.72,
-    "trend": 66.57,
-    "seasonal": -10.06,
-    "residual": 9.21
-  },
-  {
-    "date": "Oct 2023",
-    "original": 58.7,
-    "trend": 65.91,
-    "seasonal": -8.51,
-    "residual": 1.3
-  },
-  {
-    "date": "Nov 2023",
-    "original": 66.99,
-    "trend": 66.93,
-    "seasonal": -4.65,
-    "residual": 4.7
-  },
-  {
-    "date": "Dec 2023",
-    "original": 68.61,
-    "trend": 68.53,
-    "seasonal": 0.02,
-    "residual": 0.06
-  }
-]
+{
+  "Dhaka": [
+    { "date": "Jan 2021", "original": 56.75, "trend": 50.08, "seasonal": 5.01, "residual": 1.66 },
+    { "date": "Feb 2021", "original": 55.26, "trend": 50.72, "seasonal": 8.41, "residual": -3.87 },
+    { "date": "Mar 2021", "original": 70.41, "trend": 52.40, "seasonal": 9.93, "residual": 8.08 },
+    { "date": "Apr 2021", "original": 57.99, "trend": 52.35, "seasonal": 8.27, "residual": -2.63 },
+    { "date": "May 2021", "original": 53.34, "trend": 52.66, "seasonal": 4.68, "residual": -3.99 },
+    { "date": "Jun 2021", "original": 46.17, "trend": 53.48, "seasonal": -0.34, "residual": -6.97 },
+    { "date": "Jul 2021", "original": 44.92, "trend": 53.40, "seasonal": -5.16, "residual": -3.32 },
+    { "date": "Aug 2021", "original": 41.73, "trend": 52.80, "seasonal": -8.71, "residual": -2.36 },
+    { "date": "Sep 2021", "original": 49.73, "trend": 54.10, "seasonal": -10.06, "residual": 5.69 },
+    { "date": "Oct 2021", "original": 43.06, "trend": 53.43, "seasonal": -8.51, "residual": -1.90 },
+    { "date": "Nov 2021", "original": 51.17, "trend": 54.43, "seasonal": -4.65, "residual": 1.38 },
+    { "date": "Dec 2021", "original": 52.49, "trend": 56.04, "seasonal": 0.02, "residual": -3.57 },
+    { "date": "Jan 2022", "original": 65.73, "trend": 57.22, "seasonal": 5.01, "residual": 3.50 },
+    { "date": "Feb 2022", "original": 64.02, "trend": 57.63, "seasonal": 8.41, "residual": -2.02 },
+    { "date": "Mar 2022", "original": 78.93, "trend": 59.10, "seasonal": 9.93, "residual": 9.90 },
+    { "date": "Apr 2022", "original": 66.36, "trend": 58.87, "seasonal": 8.27, "residual": -0.78 },
+    { "date": "May 2022", "original": 61.58, "trend": 59.02, "seasonal": 4.68, "residual": -2.11 },
+    { "date": "Jun 2022", "original": 54.39, "trend": 59.75, "seasonal": -0.34, "residual": -5.02 },
+    { "date": "Jul 2022", "original": 53.14, "trend": 59.63, "seasonal": -5.16, "residual": -1.33 },
+    { "date": "Aug 2022", "original": 49.94, "trend": 59.03, "seasonal": -8.71, "residual": -0.38 },
+    { "date": "Sep 2022", "original": 58.05, "trend": 60.34, "seasonal": -10.06, "residual": 7.78 },
+    { "date": "Oct 2022", "original": 51.18, "trend": 59.67, "seasonal": -8.51, "residual": 0.02 },
+    { "date": "Nov 2022", "original": 59.38, "trend": 60.68, "seasonal": -4.65, "residual": 3.34 },
+    { "date": "Dec 2022", "original": 60.85, "trend": 62.29, "seasonal": 0.02, "residual": -1.46 },
+    { "date": "Jan 2023", "original": 73.98, "trend": 63.46, "seasonal": 5.01, "residual": 5.51 },
+    { "date": "Feb 2023", "original": 72.03, "trend": 63.87, "seasonal": 8.41, "residual": -0.25 },
+    { "date": "Mar 2023", "original": 86.73, "trend": 65.33, "seasonal": 9.93, "residual": 11.47 },
+    { "date": "Apr 2023", "original": 74.03, "trend": 65.09, "seasonal": 8.27, "residual": 0.67 },
+    { "date": "May 2023", "original": 69.12, "trend": 65.24, "seasonal": 4.68, "residual": -0.79 },
+    { "date": "Jun 2023", "original": 61.93, "trend": 65.97, "seasonal": -0.34, "residual": -3.70 },
+    { "date": "Jul 2023", "original": 60.66, "trend": 65.84, "seasonal": -5.16, "residual": 0.00 },
+    { "date": "Aug 2023", "original": 57.48, "trend": 65.25, "seasonal": -8.71, "residual": 0.94 },
+    { "date": "Sep 2023", "original": 65.72, "trend": 66.57, "seasonal": -10.06, "residual": 9.21 },
+    { "date": "Oct 2023", "original": 58.70, "trend": 65.91, "seasonal": -8.51, "residual": 1.30 },
+    { "date": "Nov 2023", "original": 66.99, "trend": 66.93, "seasonal": -4.65, "residual": 4.70 },
+    { "date": "Dec 2023", "original": 68.61, "trend": 68.53, "seasonal": 0.02, "residual": 0.06 }
+  ],
+  "Chittagong": [
+    { "date": "Jan 2021", "original": 60.12, "trend": 52.33, "seasonal": 6.50, "residual": 1.29 },
+    { "date": "Feb 2021", "original": 58.77, "trend": 53.01, "seasonal": 9.00, "residual": -3.24 },
+    { "date": "Mar 2021", "original": 75.00, "trend": 54.88, "seasonal": 11.53, "residual": 8.59 },
+    { "date": "Apr 2021", "original": 62.34, "trend": 54.90, "seasonal": 9.87, "residual": -2.43 },
+    { "date": "May 2021", "original": 57.01, "trend": 55.11, "seasonal": 5.23, "residual": -3.33 },
+    { "date": "Jun 2021", "original": 50.00, "trend": 56.00, "seasonal": -0.40, "residual": -5.60 },
+    { "date": "Jul 2021", "original": 48.11, "trend": 55.90, "seasonal": -6.11, "residual": -1.68 },
+    { "date": "Aug 2021", "original": 45.22, "trend": 55.22, "seasonal": -9.99, "residual": -0.01 },
+    { "date": "Sep 2021", "original": 53.88, "trend": 56.77, "seasonal": -11.00, "residual": 8.11 },
+    { "date": "Oct 2021", "original": 46.99, "trend": 56.01, "seasonal": -9.76, "residual": 0.74 },
+    { "date": "Nov 2021", "original": 55.00, "trend": 57.11, "seasonal": -5.33, "residual": 3.22 },
+    { "date": "Dec 2021", "original": 56.22, "trend": 58.88, "seasonal": -0.11, "residual": -2.55 },
+    { "date": "Jan 2022", "original": 69.12, "trend": 60.00, "seasonal": 6.50, "residual": 2.62 },
+    { "date": "Feb 2022", "original": 68.33, "trend": 60.50, "seasonal": 9.00, "residual": -1.17 },
+    { "date": "Mar 2022", "original": 83.22, "trend": 62.01, "seasonal": 11.53, "residual": 9.68 },
+    { "date": "Apr 2022", "original": 70.01, "trend": 61.88, "seasonal": 9.87, "residual": -1.74 },
+    { "date": "May 2022", "original": 65.99, "trend": 62.11, "seasonal": 5.23, "residual": -1.35 },
+    { "date": "Jun 2022", "original": 58.00, "trend": 62.88, "seasonal": -0.40, "residual": -4.48 },
+    { "date": "Jul 2022", "original": 57.01, "trend": 62.77, "seasonal": -6.11, "residual": 0.35 },
+    { "date": "Aug 2022", "original": 53.45, "trend": 62.11, "seasonal": -9.99, "residual": 1.33 },
+    { "date": "Sep 2022", "original": 62.00, "trend": 63.55, "seasonal": -11.00, "residual": 9.45 },
+    { "date": "Oct 2022", "original": 55.01, "trend": 62.88, "seasonal": -9.76, "residual": 1.89 },
+    { "date": "Nov 2022", "original": 63.88, "trend": 63.99, "seasonal": -5.33, "residual": 5.22 },
+    { "date": "Dec 2022", "original": 65.00, "trend": 65.67, "seasonal": -0.11, "residual": -0.56 },
+    { "date": "Jan 2023", "original": 78.11, "trend": 66.99, "seasonal": 6.50, "residual": 4.62 },
+    { "date": "Feb 2023", "original": 76.55, "trend": 67.44, "seasonal": 9.00, "residual": 0.11 },
+    { "date": "Mar 2023", "original": 92.00, "trend": 68.99, "seasonal": 11.53, "residual": 11.48 },
+    { "date": "Apr 2023", "original": 78.22, "trend": 68.77, "seasonal": 9.87, "residual": -0.42 },
+    { "date": "May 2023", "original": 73.00, "trend": 68.88, "seasonal": 5.23, "residual": -1.11 },
+    { "date": "Jun 2023", "original": 65.77, "trend": 69.55, "seasonal": -0.40, "residual": -3.38 },
+    { "date": "Jul 2023", "original": 64.01, "trend": 69.33, "seasonal": -6.11, "residual": 0.79 },
+    { "date": "Aug 2023", "original": 61.00, "trend": 68.88, "seasonal": -9.99, "residual": 2.11 },
+    { "date": "Sep 2023", "original": 70.00, "trend": 70.11, "seasonal": -11.00, "residual": 10.89 },
+    { "date": "Oct 2023", "original": 62.99, "trend": 69.55, "seasonal": -9.76, "residual": 3.20 },
+    { "date": "Nov 2023", "original": 71.01, "trend": 70.55, "seasonal": -5.33, "residual": 5.79 },
+    { "date": "Dec 2023", "original": 72.88, "trend": 72.11, "seasonal": -0.11, "residual": 0.88 }
+  ],
+  "Freetown": [
+    { "date": "Jan 2021", "original": 45.12, "trend": 40.22, "seasonal": 3.88, "residual": 1.02 },
+    { "date": "Feb 2021", "original": 43.99, "trend": 40.88, "seasonal": 6.77, "residual": -3.66 },
+    { "date": "Mar 2021", "original": 58.01, "trend": 42.33, "seasonal": 8.11, "residual": 7.57 },
+    { "date": "Apr 2021", "original": 46.77, "trend": 42.22, "seasonal": 6.55, "residual": -2.00 },
+    { "date": "May 2021", "original": 42.01, "trend": 42.55, "seasonal": 3.01, "residual": -3.55 },
+    { "date": "Jun 2021", "original": 35.88, "trend": 43.44, "seasonal": -1.22, "residual": -6.34 },
+    { "date": "Jul 2021", "original": 33.99, "trend": 43.22, "seasonal": -6.00, "residual": -3.23 },
+    { "date": "Aug 2021", "original": 30.11, "trend": 42.88, "seasonal": -9.88, "residual": -2.89 },
+    { "date": "Sep 2021", "original": 38.77, "trend": 44.00, "seasonal": -11.22, "residual": 5.99 },
+    { "date": "Oct 2021", "original": 32.00, "trend": 43.22, "seasonal": -9.55, "residual": -1.67 },
+    { "date": "Nov 2021", "original": 40.11, "trend": 44.33, "seasonal": -5.22, "residual": 1.00 },
+    { "date": "Dec 2021", "original": 41.88, "trend": 45.99, "seasonal": -1.01, "residual": -3.10 },
+    { "date": "Jan 2022", "original": 53.11, "trend": 47.00, "seasonal": 3.88, "residual": 2.23 },
+    { "date": "Feb 2022", "original": 52.01, "trend": 47.55, "seasonal": 6.77, "residual": -2.31 },
+    { "date": "Mar 2022", "original": 65.88, "trend": 48.88, "seasonal": 8.11, "residual": 8.89 },
+    { "date": "Apr 2022", "original": 54.01, "trend": 48.77, "seasonal": 6.55, "residual": -1.31 },
+    { "date": "May 2022", "original": 49.99, "trend": 48.99, "seasonal": 3.01, "residual": -2.01 },
+    { "date": "Jun 2022", "original": 42.11, "trend": 49.66, "seasonal": -1.22, "residual": -6.33 },
+    { "date": "Jul 2022", "original": 41.55, "trend": 49.55, "seasonal": -6.00, "residual": -2.00 },
+    { "date": "Aug 2022", "original": 38.01, "trend": 49.01, "seasonal": -9.88, "residual": -1.12 },
+    { "date": "Sep 2022", "original": 46.55, "trend": 50.22, "seasonal": -11.22, "residual": 7.55 },
+    { "date": "Oct 2022", "original": 39.88, "trend": 49.66, "seasonal": -9.55, "residual": -0.23 },
+    { "date": "Nov 2022", "original": 47.77, "trend": 50.55, "seasonal": -5.22, "residual": 2.44 },
+    { "date": "Dec 2022", "original": 49.01, "trend": 52.11, "seasonal": -1.01, "residual": -2.09 },
+    { "date": "Jan 2023", "original": 61.22, "trend": 53.44, "seasonal": 3.88, "residual": 3.90 },
+    { "date": "Feb 2023", "original": 60.11, "trend": 53.77, "seasonal": 6.77, "residual": -0.43 },
+    { "date": "Mar 2023", "original": 73.99, "trend": 55.22, "seasonal": 8.11, "residual": 10.66 },
+    { "date": "Apr 2023", "original": 62.01, "trend": 55.00, "seasonal": 6.55, "residual": 0.46 },
+    { "date": "May 2023", "original": 57.01, "trend": 55.11, "seasonal": 3.01, "residual": -1.11 },
+    { "date": "Jun 2023", "original": 50.00, "trend": 55.88, "seasonal": -1.22, "residual": -4.66 },
+    { "date": "Jul 2023", "original": 48.11, "trend": 55.77, "seasonal": -6.00, "residual": -1.66 },
+    { "date": "Aug 2023", "original": 45.88, "trend": 55.22, "seasonal": -9.88, "residual": 0.54 },
+    { "date": "Sep 2023", "original": 53.99, "trend": 56.44, "seasonal": -11.22, "residual": 8.77 },
+    { "date": "Oct 2023", "original": 47.01, "trend": 55.88, "seasonal": -9.55, "residual": 0.68 },
+    { "date": "Nov 2023", "original": 55.00, "trend": 56.88, "seasonal": -5.22, "residual": 3.34 },
+    { "date": "Dec 2023", "original": 57.22, "trend": 58.44, "seasonal": -1.01, "residual": -0.21 }
+  ],
+  "Bo": [
+    { "date": "Jan 2021", "original": 40.50, "trend": 35.00, "seasonal": 4.50, "residual": 1.00 },
+    { "date": "Feb 2021", "original": 38.75, "trend": 35.50, "seasonal": 7.25, "residual": -4.00 },
+    { "date": "Mar 2021", "original": 52.00, "trend": 36.75, "seasonal": 8.00, "residual": 7.25 },
+    { "date": "Apr 2021", "original": 42.25, "trend": 36.50, "seasonal": 6.75, "residual": -1.00 },
+    { "date": "May 2021", "original": 38.00, "trend": 36.75, "seasonal": 3.25, "residual": -2.00 },
+    { "date": "Jun 2021", "original": 32.50, "trend": 37.50, "seasonal": -1.00, "residual": -4.00 },
+    { "date": "Jul 2021", "original": 30.25, "trend": 37.25, "seasonal": -5.50, "residual": -1.50 },
+    { "date": "Aug 2021", "original": 27.00, "trend": 36.75, "seasonal": -9.00, "residual": -0.75 },
+    { "date": "Sep 2021", "original": 35.00, "trend": 37.75, "seasonal": -10.25, "residual": 7.50 },
+    { "date": "Oct 2021", "original": 29.00, "trend": 37.00, "seasonal": -8.50, "residual": 0.50 },
+    { "date": "Nov 2021", "original": 36.25, "trend": 38.00, "seasonal": -4.75, "residual": 3.00 },
+    { "date": "Dec 2021", "original": 38.00, "trend": 39.50, "seasonal": -0.50, "residual": -1.00 },
+    { "date": "Jan 2022", "original": 48.50, "trend": 40.50, "seasonal": 4.50, "residual": 3.50 },
+    { "date": "Feb 2022", "original": 47.25, "trend": 40.75, "seasonal": 7.25, "residual": -0.75 },
+    { "date": "Mar 2022", "original": 60.00, "trend": 42.00, "seasonal": 8.00, "residual": 10.00 },
+    { "date": "Apr 2022", "original": 50.00, "trend": 41.75, "seasonal": 6.75, "residual": 1.50 },
+    { "date": "May 2022", "original": 45.00, "trend": 42.00, "seasonal": 3.25, "residual": -0.25 },
+    { "date": "Jun 2022", "original": 38.50, "trend": 42.50, "seasonal": -1.00, "residual": -3.00 },
+    { "date": "Jul 2022", "original": 37.00, "trend": 42.25, "seasonal": -5.50, "residual": 0.25 },
+    { "date": "Aug 2022", "original": 34.00, "trend": 41.75, "seasonal": -9.00, "residual": 1.25 },
+    { "date": "Sep 2022", "original": 42.50, "trend": 42.75, "seasonal": -10.25, "residual": 10.00 },
+    { "date": "Oct 2022", "original": 36.00, "trend": 42.00, "seasonal": -8.50, "residual": 2.50 },
+    { "date": "Nov 2022", "original": 44.00, "trend": 43.00, "seasonal": -4.75, "residual": 5.75 },
+    { "date": "Dec 2023", "original": 45.00, "trend": 44.50, "seasonal": -0.50, "residual": 1.00 },
+    { "date": "Jan 2023", "original": 55.75, "trend": 45.50, "seasonal": 4.50, "residual": 5.75 },
+    { "date": "Feb 2023", "original": 54.00, "trend": 45.75, "seasonal": 7.25, "residual": 1.00 },
+    { "date": "Mar 2023", "original": 68.25, "trend": 47.00, "seasonal": 8.00, "residual": 13.25 },
+    { "date": "Apr 2023", "original": 57.50, "trend": 46.75, "seasonal": 6.75, "residual": 4.00 },
+    { "date": "May 2023", "original": 52.00, "trend": 47.00, "seasonal": 3.25, "residual": 1.75 },
+    { "date": "Jun 2023", "original": 45.00, "trend": 47.50, "seasonal": -1.00, "residual": -1.50 },
+    { "date": "Jul 2023", "original": 43.00, "trend": 47.25, "seasonal": -5.50, "residual": 1.25 },
+    { "date": "Aug 2023", "original": 40.25, "trend": 46.75, "seasonal": -9.00, "residual": 2.50 },
+    { "date": "Sep 2023", "original": 49.00, "trend": 47.75, "seasonal": -10.25, "residual": 11.50 },
+    { "date": "Oct 2023", "original": 42.00, "trend": 47.00, "seasonal": -8.50, "residual": 3.50 },
+    { "date": "Nov 2023", "original": 50.50, "trend": 48.00, "seasonal": -4.75, "residual": 7.25 },
+    { "date": "Dec 2023", "original": 52.00, "trend": 49.50, "seasonal": -0.50, "residual": 3.00 }
+  ]
+}
+    
