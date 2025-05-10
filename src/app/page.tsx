@@ -1,3 +1,4 @@
+
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { AppHeader } from '@/components/dashboard/Header';
 import { InteractiveMap } from '@/components/dashboard/InteractiveMap';
@@ -6,8 +7,10 @@ import { TimeSlider } from '@/components/dashboard/TimeSlider';
 import { RegionalInfoPanel } from '@/components/dashboard/RegionalInfoPanel';
 import { InsightsGenerator } from '@/components/dashboard/InsightsGenerator';
 import { SidebarSeparator } from '@/components/ui/sidebar';
+import { DashboardProvider } from '@/context/DashboardContext';
 
-export default function Home() {
+// Create a client component to wrap content that needs context
+function DashboardContent() {
   const sidebarContent = (
     <>
       <LayerToggles />
@@ -33,5 +36,14 @@ export default function Home() {
       sidebarContent={sidebarContent}
       mainContent={mainContent}
     />
+  );
+}
+
+
+export default function Home() {
+  return (
+    <DashboardProvider>
+      <DashboardContent />
+    </DashboardProvider>
   );
 }

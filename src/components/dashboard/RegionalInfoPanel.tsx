@@ -5,8 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from '@/components/ui/chart';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ReferenceDot } from 'recharts';
 import { TrendingUp, SearchCode, AlertTriangle } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useDashboardContext } from '@/context/DashboardContext';
 
 const stlChartConfig = {
   original: { label: 'Original', color: 'hsl(var(--chart-1))' },
@@ -18,8 +19,8 @@ const stlChartConfig = {
 const forecastChartConfig = {
   actual: { label: 'Actual', color: 'hsl(var(--chart-1))' },
   forecast: { label: 'Forecast', color: 'hsl(var(--chart-2))' },
-  confidenceUpper: { label: 'Confidence Upper', color: 'hsl(var(--chart-2))', icon: () => null }, // Hide from legend if desired
-  confidenceLower: { label: 'Confidence Lower', color: 'hsl(var(--chart-2))', icon: () => null }, // Hide from legend if desired
+  confidenceUpper: { label: 'Confidence Upper', color: 'hsl(var(--chart-2))', icon: () => null },
+  confidenceLower: { label: 'Confidence Lower', color: 'hsl(var(--chart-2))', icon: () => null },
 } satisfies ChartConfig;
 
 const anomalyChartConfig = {
@@ -29,10 +30,11 @@ const anomalyChartConfig = {
 
 
 export function RegionalInfoPanel() {
+  const { selectedYear } = useDashboardContext();
   const [isMounted, setIsMounted] = useState(false);
-  const [stlDecompositionData, setStlDecompositionData] = useState<any[]>([]);
-  const [timeSeriesForecastData, setTimeSeriesForecastData] = useState<any[]>([]);
-  const [anomalyDetectionData, setAnomalyDetectionData] = useState<any[]>([]);
+  const [allStlDecompositionData, setAllStlDecompositionData] = useState<any[]>([]);
+  const [allTimeSeriesForecastData, setAllTimeSeriesForecastData] = useState<any[]>([]);
+  const [allAnomalyDetectionData, setAllAnomalyDetectionData] = useState<any[]>([]);
   const [dataError, setDataError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -52,14 +54,13 @@ export function RegionalInfoPanel() {
         const forecastJson = await forecastResponse.json();
         const anomalyJson = await anomalyResponse.json();
 
-        setStlDecompositionData(stlJson);
-        setTimeSeriesForecastData(forecastJson.map((item: any) => ({
+        setAllStlDecompositionData(stlJson);
+        setAllTimeSeriesForecastData(forecastJson.map((item: any) => ({
           ...item,
-          // Ensure confidence is an array [min, max] for area chart or two lines
           confidenceLower: item.confidence ? item.confidence[0] : null,
           confidenceUpper: item.confidence ? item.confidence[1] : null,
         })));
-        setAnomalyDetectionData(anomalyJson);
+        setAllAnomalyDetectionData(anomalyJson);
         setDataError(null);
       } catch (error) {
         console.error("Failed to load chart data:", error);
@@ -70,6 +71,35 @@ export function RegionalInfoPanel() {
     }
     fetchData();
   }, []);
+
+  const filteredStlData = useMemo(() => {
+    if (!selectedYear || !allStlDecompositionData.length) return allStlDecompositionData;
+    const yearStr = selectedYear.toString();
+    return allStlDecompositionData.filter(item => item.date && item.date.endsWith(yearStr));
+  }, [selectedYear, allStlDecompositionData]);
+
+  const filteredForecastData = useMemo(() => {
+    if (!selectedYear || !allTimeSeriesForecastData.length) return allTimeSeriesForecastData;
+    const yearStr = selectedYear.toString();
+    // For forecast data, we want to show actual data from the selected year
+    // and forecast data that *starts* in or after the selected year if the actual data for that point is null
+    return allTimeSeriesForecastData.filter(item => {
+      if (!item.date) return false;
+      const itemYear = item.date.split(' ')[1];
+      if (item.actual !== null) {
+        return itemYear === yearStr;
+      }
+      // If actual is null, it's a forecast point. Include if forecast year is >= selected year
+      return parseInt(itemYear) >= selectedYear;
+    });
+  }, [selectedYear, allTimeSeriesForecastData]);
+
+  const filteredAnomalyData = useMemo(() => {
+    if (!selectedYear || !allAnomalyDetectionData.length) return allAnomalyDetectionData;
+    const yearStr = selectedYear.toString();
+    return allAnomalyDetectionData.filter(item => item.date && item.date.endsWith(yearStr));
+  }, [selectedYear, allAnomalyDetectionData]);
+
 
   if (!isMounted) {
     return (
@@ -114,13 +144,13 @@ export function RegionalInfoPanel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <TrendingUp className="h-5 w-5 text-primary" />
-            STL Decomposition
+            STL Decomposition {selectedYear && `(${selectedYear})`}
           </CardTitle>
           <CardDescription>Seasonal-Trend-Loess decomposition of the selected metric.</CardDescription>
         </CardHeader>
         <CardContent className="h-[400px] p-0 pr-6 pb-6">
           <ChartContainer config={stlChartConfig} className="h-full w-full">
-            <LineChart data={stlDecompositionData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+            <LineChart data={filteredStlData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
               <YAxis tickLine={false} axisLine={false} tickMargin={8} width={60} fontSize={12}/>
@@ -140,13 +170,13 @@ export function RegionalInfoPanel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <SearchCode className="h-5 w-5 text-primary" />
-            Time Series Forecast
+            Time Series Forecast {selectedYear && `(Actuals for ${selectedYear}, Forecast beyond)`}
           </CardTitle>
           <CardDescription>Forecast of the selected metric with confidence intervals.</CardDescription>
         </CardHeader>
         <CardContent className="h-[400px] p-0 pr-6 pb-6">
           <ChartContainer config={forecastChartConfig} className="h-full w-full">
-            <LineChart data={timeSeriesForecastData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+            <LineChart data={filteredForecastData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
               <YAxis tickLine={false} axisLine={false} tickMargin={8} width={60} fontSize={12}/>
@@ -166,20 +196,20 @@ export function RegionalInfoPanel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <AlertTriangle className="h-5 w-5 text-primary" />
-            Anomaly Detection
+            Anomaly Detection {selectedYear && `(${selectedYear})`}
           </CardTitle>
           <CardDescription>Detected anomalies in the observed data.</CardDescription>
         </CardHeader>
         <CardContent className="h-[400px] p-0 pr-6 pb-6">
           <ChartContainer config={anomalyChartConfig} className="h-full w-full">
-            <LineChart data={anomalyDetectionData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+            <LineChart data={filteredAnomalyData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
               <YAxis tickLine={false} axisLine={false} tickMargin={8} width={60} fontSize={12}/>
               <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
               <ChartLegend content={<ChartLegendContent />} />
               <Line type="monotone" dataKey="value" stroke="var(--color-value)" strokeWidth={2} dot={false} />
-              {anomalyDetectionData.filter(d => d.isAnomaly).map((entry, index) => (
+              {filteredAnomalyData.filter(d => d.isAnomaly).map((entry, index) => (
                 <ReferenceDot
                   key={`anomaly-dot-${index}`}
                   x={entry.date}

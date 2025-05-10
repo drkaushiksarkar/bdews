@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -6,19 +7,19 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { CalendarClock } from 'lucide-react';
 import { SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from '@/components/ui/sidebar';
+import { useDashboardContext } from '@/context/DashboardContext';
 
 
 export function TimeSlider() {
-  const [currentYear, setCurrentYear] = useState<number | undefined>(undefined);
+  const { selectedYear, setSelectedYear } = useDashboardContext();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setCurrentYear(new Date().getFullYear());
     setIsMounted(true);
   }, []);
 
 
-  if (!isMounted || currentYear === undefined) {
+  if (!isMounted || selectedYear === undefined) {
     return (
       <SidebarGroup>
         <SidebarGroupLabel className="flex items-center gap-2">
@@ -54,15 +55,15 @@ export function TimeSlider() {
         <div className="p-4 space-y-4">
           <div className="flex justify-between items-center">
             <Label htmlFor="time-slider" className="text-sm font-medium">Selected Year:</Label>
-            <span className="text-sm font-bold text-primary">{currentYear}</span>
+            <span className="text-sm font-bold text-primary">{selectedYear}</span>
           </div>
           <Slider
             id="time-slider"
             min={2000}
             max={2050}
             step={1}
-            defaultValue={[currentYear]}
-            onValueChange={(value) => setCurrentYear(value[0])}
+            defaultValue={[selectedYear]}
+            onValueChange={(value) => setSelectedYear(value[0])}
             className="w-full"
           />
           <CardDescription className="text-xs text-center">
@@ -76,4 +77,3 @@ export function TimeSlider() {
     </SidebarGroup>
   );
 }
-
