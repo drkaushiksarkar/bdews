@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -34,6 +33,7 @@ export function InteractiveMap() {
         const hasAnomaly = anomalyData[regionName][selectedDisease].some(
           (entry) => entry.date.endsWith(yearStr) && entry.isAnomaly
         );
+        // We also need to ensure metadata exists to be able to plot it
         if (hasAnomaly && regionMetadata[regionName]) {
           hotspots.push(regionName);
         }
@@ -46,50 +46,78 @@ export function InteractiveMap() {
     setCurrentHotspots(hotspotRegions);
     
     if (!regionMetadata) {
-      // Still loading metadata or error
+      // Metadata might still be loading or there was an error fetching it.
+      // Don't attempt to construct a new map URL without it.
+      // The map will either show its default or the previously set URL.
       return;
     }
 
-    let newQuery = '';
-    let zoom = 2;
-    let centerQueryDone = false;
+    let query = '';
+    let zoomLevel = 2;
 
-    if (hotspotRegions.length > 0 && regionMetadata) {
-      // If there are specific hotspots for the selected disease/year
-      const hotspotQueries = hotspotRegions.map(regionName => {
+    const validHotspotPlotData = hotspotRegions
+      .map(regionName => {
         const meta = regionMetadata[regionName];
-        return meta ? `${meta.latitude},${meta.longitude}(${encodeURIComponent(regionName)})` : encodeURIComponent(regionName);
-      });
-      newQuery = hotspotQueries.join('|');
-      zoom = 6; // Zoom in a bit if there are specific hotspots
-      // If selectedRegion is one of the hotspots, center on it more specifically.
-      if (selectedRegion && hotspotRegions.includes(selectedRegion) && regionMetadata[selectedRegion]) {
-         const meta = regionMetadata[selectedRegion];
-         newQuery = `${meta.latitude},${meta.longitude}(${encodeURIComponent(selectedRegion)})|${hotspotQueries.filter(q => !q.includes(encodeURIComponent(selectedRegion))).join('|')}`; // Prioritize selected region
-         zoom = 8;
-         centerQueryDone = true;
-      } else if (hotspotRegions.length === 1 && regionMetadata[hotspotRegions[0]]){
-        // If only one hotspot, center on it
-        const meta = regionMetadata[hotspotRegions[0]];
-        newQuery = `${meta.latitude},${meta.longitude}(${encodeURIComponent(hotspotRegions[0])})`;
-        zoom = 8;
-        centerQueryDone = true;
-      }
+        if (meta && typeof meta.latitude === 'number' && typeof meta.longitude === 'number') {
+          return {
+            name: regionName,
+            lat: meta.latitude,
+            lon: meta.longitude,
+            queryString: `${meta.latitude},${meta.longitude}(${encodeURIComponent(regionName)})`
+          };
+        }
+        console.warn(`InteractiveMap: Missing or invalid (lat/lon not numbers) metadata for hotspot region: ${regionName}. Latitude: ${meta?.latitude}, Longitude: ${meta?.longitude}`);
+        return null; 
+      })
+      .filter(Boolean);
 
-    } else if (selectedRegion && regionMetadata && regionMetadata[selectedRegion]) {
-      // If no specific hotspots for the filter, but a region is selected
+    if (validHotspotPlotData.length > 0) {
+      query = validHotspotPlotData.map(h => h!.queryString).join('|');
+      zoomLevel = 6; // Default zoom for multiple hotspots
+
+      const selectedRegionIsHotspot = selectedRegion && validHotspotPlotData.find(h => h!.name === selectedRegion);
+
+      if (selectedRegionIsHotspot) {
+        // Prioritize selected region if it's a hotspot
+        const selectedQuery = selectedRegionIsHotspot.queryString;
+        const otherQueries = validHotspotPlotData
+          .filter(h => h!.name !== selectedRegion)
+          .map(h => h!.queryString);
+        query = [selectedQuery, ...otherQueries].join('|');
+        zoomLevel = 8;
+      } else if (validHotspotPlotData.length === 1) {
+        // If only one valid hotspot, zoom in on it (query is already just that one)
+        zoomLevel = 8;
+      }
+    } else if (selectedRegion && regionMetadata[selectedRegion]) {
+      // No valid hotspots to plot, but a region is selected
       const meta = regionMetadata[selectedRegion];
-      newQuery = `${meta.latitude},${meta.longitude}(${encodeURIComponent(selectedRegion)})`;
-      zoom = 8; // Zoom into the selected region
-      centerQueryDone = true;
+      if (typeof meta.latitude === 'number' && typeof meta.longitude === 'number') {
+        query = `${meta.latitude},${meta.longitude}(${encodeURIComponent(selectedRegion)})`;
+        zoomLevel = 8;
+      } else {
+        console.warn(`InteractiveMap: Missing or invalid metadata for selected region: ${selectedRegion}`);
+        query = '0,0'; // Fallback
+        zoomLevel = 2;
+      }
     } else {
-      // Default global view
-      newQuery = '0,0';
-      zoom = 2;
-      centerQueryDone = true;
+      // Default global view if no hotspots and no selected region with valid meta
+      query = '0,0';
+      zoomLevel = 2;
     }
     
-    setMapUrl(`https://maps.google.com/maps?q=${newQuery}&hl=en&z=${zoom}&t=k&output=embed`);
+    if (!query.trim()) { // Final safety net for empty query
+        query = '0,0';
+        zoomLevel = 2;
+    }
+    
+    // Ensure the 'q' parameter contains the locations. Labels are already URI encoded.
+    // Do not encode the entire 'query' string here, as it contains special characters like '|', '(', ')', ','
+    // which are part of the Google Maps query syntax.
+    const newMapUrl = `https://maps.google.com/maps?q=${query}&hl=en&z=${zoomLevel}&t=k&output=embed`;
+    
+    // console.log("Setting map URL:", newMapUrl); // For debugging
+    setMapUrl(newMapUrl);
 
   }, [selectedRegion, selectedDisease, selectedYear, anomalyData, regionMetadata, hotspotRegions]);
 
