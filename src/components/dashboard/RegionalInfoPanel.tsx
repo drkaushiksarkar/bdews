@@ -48,6 +48,7 @@ export function RegionalInfoPanel() {
   const [dataError, setDataError] = useState<string | null>(null);
 
   useEffect(() => {
+    let active = true;
     async function fetchData() {
       try {
         const [stlResponse, forecastResponse, anomalyResponse] = await Promise.all([
@@ -64,11 +65,12 @@ export function RegionalInfoPanel() {
         const forecastJson: ForecastChartDataContainer = await forecastResponse.json();
         const anomalyJson: AnomalyChartDataContainer = await anomalyResponse.json();
         
+        if (!active) return;
+
         const regions = Object.keys(stlJson);
         setAvailableRegions(regions);
-        if (regions.length > 0 && !selectedRegion) {
-          setSelectedRegion(regions[0]);
-        }
+        // Initial selectedRegion setting is handled by DashboardContext's useEffect
+        // based on availableRegions update.
 
         setAllStlDecompositionData(stlJson);
         
@@ -84,15 +86,19 @@ export function RegionalInfoPanel() {
         setAllAnomalyDetectionData(anomalyJson);
         setDataError(null);
       } catch (error) {
+        if (!active) return;
         console.error("Failed to load chart data:", error);
         setDataError(error instanceof Error ? error.message : "An unknown error occurred while fetching data.");
       } finally {
-        setIsMounted(true);
+        if (active) {
+          setIsMounted(true);
+        }
       }
     }
     fetchData();
+    return () => { active = false; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setAvailableRegions, setSelectedRegion]); // selectedRegion removed to avoid re-fetch loop on initial set
+  }, []); // Runs once on mount to fetch all data
 
   const getCurrentRegionData = <T,>(dataContainer: Record<string, T[]>): T[] => {
     if (!selectedRegion || !dataContainer[selectedRegion]) return [];
@@ -113,10 +119,13 @@ export function RegionalInfoPanel() {
     return currentRegionForecastData.filter(item => {
       if (!item.date) return false;
       const itemYear = item.date.split(' ')[1];
-      if (item.actual !== null) {
-        return itemYear === yearStr;
+      if (item.actual !== null) { // For data points with actual values
+        return itemYear === yearStr; // Only show actuals for the selected year
       }
-      return parseInt(itemYear) >= selectedYear;
+      // For data points with forecast values (actual is null)
+      // Show forecasts if their year is the selected year or any future year relative to actuals.
+      // Given data structure, forecast starts where actuals end. So if selectedYear has forecasts, show them.
+      return parseInt(itemYear) >= selectedYear; 
     });
   }, [selectedYear, selectedRegion, allTimeSeriesForecastData]);
 
@@ -150,7 +159,7 @@ export function RegionalInfoPanel() {
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <p>{isMounted ? "Select a region to view data." : "Loading data and regions..."}</p>
+                <p>{isMounted && !selectedRegion ? "No regions available or selected." : "Loading data and regions..."}</p>
             </CardContent>
         </Card>
       </div>
@@ -204,7 +213,7 @@ export function RegionalInfoPanel() {
               </LineChart>
             </ChartContainer>
           ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground">No STL data available for {displayedRegion} in {selectedYear}.</div>
+            <div className="flex items-center justify-center h-full text-muted-foreground">No STL data available for {displayedRegion} in {selectedYear || 'the selected year'}.</div>
           )}
         </CardContent>
       </Card>
@@ -214,7 +223,7 @@ export function RegionalInfoPanel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <SearchCode className="h-5 w-5 text-primary" />
-            Time Series Forecast - {displayedRegion} {selectedYear && `(Actuals for ${selectedYear}, Forecast beyond)`}
+            Time Series Forecast - {displayedRegion} {selectedYear && `(Data for ${selectedYear})`}
           </CardTitle>
           <CardDescription>Forecast of the selected metric with confidence intervals.</CardDescription>
         </CardHeader>
@@ -229,12 +238,12 @@ export function RegionalInfoPanel() {
                 <ChartLegend content={<ChartLegendContent />} />
                 <Line connectNulls type="monotone" dataKey="actual" stroke="var(--color-actual)" strokeWidth={2} dot={false} />
                 <Line connectNulls type="monotone" dataKey="forecast" stroke="var(--color-forecast)" strokeWidth={2} dot={false} strokeDasharray="5 5" />
-                <Line connectNulls type="monotone" dataKey="confidenceLower" stroke="var(--color-confidenceLower)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Lower" />
-                <Line connectNulls type="monotone" dataKey="confidenceUpper" stroke="var(--color-confidenceUpper)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Upper" />
+                <Line connectNulls type="monotone" dataKey="confidenceLower" stroke="var(--color-confidenceLower)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Band" legendType="none"/>
+                <Line connectNulls type="monotone" dataKey="confidenceUpper" stroke="var(--color-confidenceUpper)" strokeOpacity={0.3} strokeWidth={1} dot={false} name="Confidence Band" legendType="none"/>
               </LineChart>
             </ChartContainer>
           ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground">No forecast data available for {displayedRegion} in {selectedYear}.</div>
+            <div className="flex items-center justify-center h-full text-muted-foreground">No forecast data available for {displayedRegion} in {selectedYear || 'the selected year'}.</div>
           )}
         </CardContent>
       </Card>
@@ -274,10 +283,11 @@ export function RegionalInfoPanel() {
               </LineChart>
             </ChartContainer>
           ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground">No anomaly data available for {displayedRegion} in {selectedYear}.</div>
+            <div className="flex items-center justify-center h-full text-muted-foreground">No anomaly data available for {displayedRegion} in {selectedYear || 'the selected year'}.</div>
           )}
         </CardContent>
       </Card>
     </div>
   );
 }
+

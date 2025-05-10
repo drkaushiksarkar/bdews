@@ -21,9 +21,9 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [availableRegions, setAvailableRegions] = useState<string[]>([]);
 
   useEffect(() => {
-    // Set initial year on mount
+    // Set initial year on mount to a year where data exists
     if (typeof window !== 'undefined') {
-        setSelectedYear(new Date().getFullYear());
+        setSelectedYear(2023); // Default to 2023 as dummy data exists for this year
     }
   }, []);
 
@@ -31,7 +31,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     if (availableRegions.length > 0 && !selectedRegion) {
       setSelectedRegion(availableRegions[0]);
     }
-  }, [availableRegions, selectedRegion]);
+  }, [availableRegions, selectedRegion, setSelectedRegion]);
 
 
   return (
