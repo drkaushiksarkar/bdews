@@ -8,7 +8,8 @@ import { TimeSlider } from '@/components/dashboard/TimeSlider';
 import { RegionalInfoPanel } from '@/components/dashboard/RegionalInfoPanel';
 import { InsightsGenerator } from '@/components/dashboard/InsightsGenerator';
 import { RegionSelector } from '@/components/dashboard/RegionSelector'; 
-import { DiseaseSelector } from '@/components/dashboard/DiseaseSelector'; // Added
+import { DiseaseSelector } from '@/components/dashboard/DiseaseSelector';
+import { FoliumMapPlaceholder } from '@/components/dashboard/FoliumMapPlaceholder'; // Added
 import { SidebarSeparator } from '@/components/ui/sidebar';
 import { DashboardProvider } from '@/context/DashboardContext';
 
@@ -18,7 +19,7 @@ function DashboardContent() {
     <>
       <RegionSelector /> 
       <SidebarSeparator />
-      <DiseaseSelector /> {/* Added */}
+      <DiseaseSelector />
       <SidebarSeparator />
       <LayerToggles />
       <SidebarSeparator />
@@ -33,6 +34,7 @@ function DashboardContent() {
       <AppHeader />
       <main className="flex-1 p-6 space-y-6 overflow-auto">
         <InteractiveMap />
+        <FoliumMapPlaceholder /> 
         <RegionalInfoPanel />
       </main>
     </>
@@ -54,3 +56,4 @@ export default function Home() {
     </DashboardProvider>
   );
 }
+
