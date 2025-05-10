@@ -9,15 +9,16 @@ import { SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from '@/componen
 
 
 export function TimeSlider() {
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [currentYear, setCurrentYear] = useState<number | undefined>(undefined);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
     setIsMounted(true);
   }, []);
 
 
-  if (!isMounted) {
+  if (!isMounted || currentYear === undefined) {
     return (
       <SidebarGroup>
         <SidebarGroupLabel className="flex items-center gap-2">
@@ -25,9 +26,18 @@ export function TimeSlider() {
           Time Forecast
         </SidebarGroupLabel>
         <SidebarGroupContent>
-          <div className="p-2 space-y-2">
-            <div className="h-6 w-20 bg-muted rounded animate-pulse"></div>
-            <div className="h-4 w-full bg-muted rounded animate-pulse"></div>
+          <div className="p-4 space-y-4 group-data-[collapsible=icon]:hidden">
+            <div className="flex justify-between items-center">
+                <Label htmlFor="time-slider-loading" className="text-sm font-medium">Selected Year:</Label>
+                <div className="h-5 w-12 bg-muted rounded animate-pulse"></div>
+            </div>
+            <div className="h-5 w-full bg-muted rounded animate-pulse"></div>
+            <CardDescription className="text-xs text-center">
+                Loading time forecast options...
+            </CardDescription>
+          </div>
+           <div className="p-2 space-y-2 group-data-[collapsible=icon]:not-hidden hidden justify-center">
+            <div className="h-6 w-6 bg-muted rounded animate-pulse mx-auto"></div>
           </div>
         </SidebarGroupContent>
       </SidebarGroup>
@@ -60,6 +70,10 @@ export function TimeSlider() {
           </CardDescription>
         </div>
       </SidebarGroupContent>
+       <SidebarGroupContent className="group-data-[collapsible=icon]:not-hidden hidden justify-center p-2">
+         <CalendarClock className="h-6 w-6 text-sidebar-foreground" />
+      </SidebarGroupContent>
     </SidebarGroup>
   );
 }
+
