@@ -13,6 +13,7 @@ import { FoliumMapPlaceholder } from '@/components/dashboard/FoliumMapPlaceholde
 import { DistributionChartsPlaceholder } from '@/components/dashboard/DistributionChartsPlaceholder';
 import { KeyPerformanceIndicators } from '@/components/dashboard/KeyPerformanceIndicators';
 import { RiskCommunicationArea } from '@/components/dashboard/RiskCommunicationArea';
+import { WeatherInfoPanel } from '@/components/dashboard/WeatherInfoPanel'; // Import WeatherInfoPanel
 import { SidebarSeparator } from '@/components/ui/sidebar';
 import { DashboardProvider } from '@/context/DashboardContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -59,12 +60,26 @@ function DashboardContent() {
             <CardTitle className="text-xl">Time Series Analysis</CardTitle>
             <CardDescription>Detailed time-based trends, forecasts, and anomaly detection.</CardDescription>
           </CardHeader>
-          <CardContent> {/* RegionalInfoPanel will render its cards, which will be flex items */}
+          <CardContent> 
             <RegionalInfoPanel />
           </CardContent>
         </Card>
+
+        {/* Panel 3: Weather Information */}
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-xl">Weather Information</CardTitle>
+            <CardDescription>
+              Current and forecasted weather conditions for the selected region. 
+              (Note: In a full system, this data could be overlaid on the map.)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <WeatherInfoPanel />
+          </CardContent>
+        </Card>
         
-        {/* Panel 3: Additional Metrics & Analytics */}
+        {/* Panel 4: Additional Metrics & Analytics */}
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="text-xl">Additional Metrics & Analytics</CardTitle>

@@ -17,10 +17,25 @@ export interface KpiDataItem {
   casesNextMonth: number;
   affectedPopulation: number;
 }
+export interface WeatherCondition {
+  value: number;
+  unit: string;
+  forecast?: string; // General forecast string for temperature
+  forecast_24h_prob?: number; // Specific for rainfall
+  description?: string; // Specific for rainfall
+  comfort_level?: string; // Specific for humidity
+  source: string;
+}
+export interface WeatherDataItem {
+  temperature: WeatherCondition;
+  rainfall: WeatherCondition;
+  humidity: WeatherCondition;
+}
 
 export type RegionDiseaseData<T> = Record<string, Record<Disease, T[]>>;
 export type RegionKpiData = Record<string, Record<Disease, KpiDataItem>>;
 export type RegionMetadata = Record<string, RegionMetadataItem>;
+export type RegionWeatherData = Record<string, WeatherDataItem>;
 
 
 interface DashboardContextProps {
@@ -39,6 +54,7 @@ interface DashboardContextProps {
   anomalyData: RegionDiseaseData<AnomalyDataPoint> | null;
   regionMetadata: RegionMetadata | null;
   kpiData: RegionKpiData | null;
+  weatherData: RegionWeatherData | null;
   dataLoading: boolean;
   dataError: string | null;
 }
@@ -56,6 +72,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [anomalyData, setAnomalyData] = useState<RegionDiseaseData<AnomalyDataPoint> | null>(null);
   const [regionMetadata, setRegionMetadata] = useState<RegionMetadata | null>(null);
   const [kpiData, setKpiData] = useState<RegionKpiData | null>(null);
+  const [weatherData, setWeatherData] = useState<RegionWeatherData | null>(null);
   const [dataLoading, setDataLoading] = useState<boolean>(true);
   const [dataError, setDataError] = useState<string | null>(null);
   
@@ -71,12 +88,20 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       setDataLoading(true);
       setDataError(null);
       try {
-        const [stlResponse, forecastResponse, anomalyResponse, regionMetaResponse, kpiResponse] = await Promise.all([
+        const [
+          stlResponse, 
+          forecastResponse, 
+          anomalyResponse, 
+          regionMetaResponse, 
+          kpiResponse,
+          weatherResponse
+        ] = await Promise.all([
           fetch('/data/stl-decomposition-data.json'),
           fetch('/data/time-series-forecast-data.json'),
           fetch('/data/anomaly-detection-data.json'),
           fetch('/data/region-metadata.json'),
           fetch('/data/kpi-data.json'),
+          fetch('/data/weather-data.json'),
         ]);
 
         if (!stlResponse.ok) throw new Error(`Failed to fetch STL data: ${stlResponse.statusText}`);
@@ -84,6 +109,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         if (!anomalyResponse.ok) throw new Error(`Failed to fetch anomaly data: ${anomalyResponse.statusText}`);
         if (!regionMetaResponse.ok) throw new Error(`Failed to fetch region metadata: ${regionMetaResponse.statusText}`);
         if (!kpiResponse.ok) throw new Error(`Failed to fetch KPI data: ${kpiResponse.statusText}`);
+        if (!weatherResponse.ok) throw new Error(`Failed to fetch weather data: ${weatherResponse.statusText}`);
 
 
         const stlJson: RegionDiseaseData<StlDataPoint> = await stlResponse.json();
@@ -91,6 +117,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         const anomalyJson: RegionDiseaseData<AnomalyDataPoint> = await anomalyResponse.json();
         const regionMetaJson: RegionMetadata = await regionMetaResponse.json();
         const kpiJson: RegionKpiData = await kpiResponse.json();
+        const weatherJson: RegionWeatherData = await weatherResponse.json();
         
         setStlData(stlJson);
         
@@ -109,6 +136,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         setAnomalyData(anomalyJson);
         setRegionMetadata(regionMetaJson);
         setKpiData(kpiJson);
+        setWeatherData(weatherJson);
 
         const regions = Object.keys(regionMetaJson);
         setAvailableRegions(regions);
@@ -147,7 +175,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       availableRegions, setAvailableRegions,
       selectedDisease, setSelectedDisease,
       availableDiseases,
-      stlData, forecastData, anomalyData, regionMetadata, kpiData,
+      stlData, forecastData, anomalyData, regionMetadata, kpiData, weatherData,
       dataLoading, dataError
     }}>
       {children}

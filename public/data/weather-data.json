@@ -1,0 +1,28 @@
+
+{
+  "Dhaka": {
+    "temperature": { "value": 32, "unit": "°C", "forecast": "Sunny, chance of afternoon showers", "source": "Dummy Weather Service" },
+    "rainfall": { "value": 5, "unit": "mm last 24h", "forecast_24h_prob": 0.4, "description": "Light rain patches" , "source": "Dummy Weather Service"},
+    "humidity": { "value": 75, "unit": "%", "comfort_level": "High", "source": "Dummy Weather Service" }
+  },
+  "Chittagong": {
+    "temperature": { "value": 30, "unit": "°C", "forecast": "Cloudy with intermittent rain", "source": "Dummy Weather Service" },
+    "rainfall": { "value": 15, "unit": "mm last 24h", "forecast_24h_prob": 0.75, "description": "Moderate rain expected", "source": "Dummy Weather Service" },
+    "humidity": { "value": 85, "unit": "%", "comfort_level": "Very High", "source": "Dummy Weather Service" }
+  },
+  "Freetown": {
+    "temperature": { "value": 28, "unit": "°C", "forecast": "Humid with scattered thunderstorms", "source": "Dummy Weather Service" },
+    "rainfall": { "value": 25, "unit": "mm last 24h", "forecast_24h_prob": 0.65, "description": "Heavy rain possible", "source": "Dummy Weather Service" },
+    "humidity": { "value": 90, "unit": "%", "comfort_level": "Oppressive", "source": "Dummy Weather Service" }
+  },
+  "Bo": {
+    "temperature": { "value": 29, "unit": "°C", "forecast": "Partly cloudy", "source": "Dummy Weather Service" },
+    "rainfall": { "value": 2, "unit": "mm last 24h", "forecast_24h_prob": 0.2, "description": "Dry conditions", "source": "Dummy Weather Service" },
+    "humidity": { "value": 65, "unit": "%", "comfort_level": "Moderate", "source": "Dummy Weather Service" }
+  },
+  "Barishal": {
+    "temperature": { "value": 31, "unit": "°C", "forecast": "Hot and humid", "source": "Dummy Weather Service" },
+    "rainfall": { "value": 8, "unit": "mm last 24h", "forecast_24h_prob": 0.5, "description": "Chance of rain", "source": "Dummy Weather Service" },
+    "humidity": { "value": 80, "unit": "%", "comfort_level": "High", "source": "Dummy Weather Service" }
+  }
+}
