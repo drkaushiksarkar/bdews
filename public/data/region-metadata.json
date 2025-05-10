@@ -1,6 +1,8 @@
+
 {
-  "Dhaka": { "latitude": 23.8103, "longitude": 90.4125, "country": "Bangladesh" },
-  "Chittagong": { "latitude": 22.3569, "longitude": 91.7832, "country": "Bangladesh" },
+  "Dhaka": { "latitude": 23.700286, "longitude": 90.238036, "country": "Bangladesh" },
+  "Chittagong": { "latitude": 22.854030, "longitude": 91.504141, "country": "Bangladesh" },
+  "Barishal": { "latitude": 22.469551, "longitude": 90.288665, "country": "Bangladesh" },
   "Freetown": { "latitude": 8.4844, "longitude": -13.2344, "country": "Sierra Leone" },
   "Bo": { "latitude": 7.9575, "longitude": -11.7347, "country": "Sierra Leone" }
 }

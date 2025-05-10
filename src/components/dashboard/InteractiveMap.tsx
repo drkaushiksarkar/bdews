@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -77,15 +78,14 @@ export function InteractiveMap() {
     setCurrentHotspots(forecastBasedHotspotRegions);
 
     if (!regionMetadata) {
-      // Set a default map or a loading state if metadata is crucial and not yet loaded
       setMapUrl('https://maps.google.com/maps?q=0,0&hl=en&z=2&t=k&output=embed');
       return;
     }
 
     let query = '';
-    let zoomLevel = 2; // Default global zoom
+    let zoomLevel = 2; 
 
-    const validHotspotsWithCoords = forecastBasedHotspotRegions
+    const validHotspotsForMap = forecastBasedHotspotRegions
       .map(regionName => {
         const meta = regionMetadata[regionName];
         if (meta && typeof meta.latitude === 'number' && typeof meta.longitude === 'number') {
@@ -93,29 +93,30 @@ export function InteractiveMap() {
             name: regionName,
             lat: meta.latitude,
             lon: meta.longitude,
-            queryString: `${meta.latitude},${meta.longitude}(${encodeURIComponent(regionName)})`
           };
         }
         console.warn(`InteractiveMap: Missing or invalid metadata for hotspot region: ${regionName}.`);
         return null;
       })
-      .filter(item => item !== null) as { name: string; lat: number; lon: number; queryString: string }[];
+      .filter(item => item !== null) as { name: string; lat: number; lon: number }[];
 
-    if (validHotspotsWithCoords.length > 0) {
-      // We have hotspots to display
-      query = validHotspotsWithCoords.map(h => h.queryString).join('|');
-      if (validHotspotsWithCoords.length === 1) {
-        zoomLevel = 7; // Zoom in more for a single hotspot
+    if (validHotspotsForMap.length > 0) {
+      if (validHotspotsForMap.length === 1) {
+        // Single hotspot, use label for better context
+        const hotspot = validHotspotsForMap[0];
+        query = `${hotspot.lat},${hotspot.lon}(${encodeURIComponent(hotspot.name)})`;
+        zoomLevel = 7; 
       } else {
-        zoomLevel = 5; // Zoom out a bit for multiple hotspots (country/large region level)
-                       // Google Maps will attempt to fit all markers.
+        // Multiple hotspots, use coordinates separated by |
+        query = validHotspotsForMap.map(h => `${h.lat},${h.lon}`).join('|');
+        zoomLevel = 5; // Google Maps will attempt to fit all markers.
       }
     } else if (selectedRegion && regionMetadata[selectedRegion]) {
       // No hotspots, but a specific region is selected
       const meta = regionMetadata[selectedRegion];
       if (typeof meta.latitude === 'number' && typeof meta.longitude === 'number') {
         query = `${meta.latitude},${meta.longitude}(${encodeURIComponent(selectedRegion)})`;
-        zoomLevel = 7; // Zoom in for the selected region
+        zoomLevel = 7;
       } else {
         console.warn(`InteractiveMap: Missing or invalid metadata for selected region: ${selectedRegion}`);
         query = '0,0'; // Fallback if selected region has bad metadata
@@ -123,13 +124,12 @@ export function InteractiveMap() {
       }
     } else {
       // Default: No hotspots and no specific region selected, or metadata missing for selection
-      query = '0,0';
+      query = 'world'; // General view for world
       zoomLevel = 2;
     }
     
-    // Ensure query is never empty to prevent 404s
     if (!query.trim()) {
-        query = '0,0'; // Should be caught by above logic, but as a safeguard
+        query = '0,0'; 
         zoomLevel = 2;
     }
 
@@ -194,7 +194,7 @@ export function InteractiveMap() {
       </CardHeader>
       <CardContent className="aspect-[16/9] relative p-0">
         <iframe
-          key={mapUrl}
+          key={mapUrl} // Re-render iframe when URL changes
           src={mapUrl}
           width="100%"
           height="100%"
@@ -209,3 +209,4 @@ export function InteractiveMap() {
     </Card>
   );
 }
+
