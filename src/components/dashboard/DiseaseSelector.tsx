@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Bug } from 'lucide-react'; // Using Bug icon for disease
+import { Bug } from 'lucide-react'; 
 import { useDashboardContext } from '@/context/DashboardContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from '@/components/ui/sidebar';
@@ -12,10 +12,12 @@ export function DiseaseSelector() {
   const { 
     selectedDisease, 
     setSelectedDisease, 
-    availableDiseases 
+    availableDiseases,
+    dataLoading, // Use from context
+    dataError    // Use from context
   } = useDashboardContext();
 
-  if (!availableDiseases.length) {
+  if (dataLoading) {
     return (
       <SidebarGroup>
         <SidebarGroupLabel className="flex items-center gap-2">
@@ -34,6 +36,28 @@ export function DiseaseSelector() {
       </SidebarGroup>
     );
   }
+  
+  if (dataError && !availableDiseases.length) { // Show error only if diseases couldn't be determined due to broader data error
+     return (
+      <SidebarGroup>
+        <SidebarGroupLabel className="flex items-center gap-2">
+          <Bug className="h-5 w-5" />
+          Disease
+        </SidebarGroupLabel>
+        <SidebarGroupContent className="group-data-[collapsible=icon]:hidden">
+          <div className="p-4">
+            <p className="text-xs text-center text-destructive">
+              Error loading disease options.
+            </p>
+          </div>
+        </SidebarGroupContent>
+         <SidebarGroupContent className="group-data-[collapsible=icon]:not-hidden hidden justify-center p-2">
+           <Bug className="h-6 w-6 text-destructive" />
+        </SidebarGroupContent>
+      </SidebarGroup>
+    );
+  }
+
 
   return (
     <SidebarGroup>
@@ -46,6 +70,7 @@ export function DiseaseSelector() {
           <Select
             value={selectedDisease || ''}
             onValueChange={(value) => setSelectedDisease(value as Disease || undefined)}
+            disabled={availableDiseases.length === 0 || dataLoading}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select a disease" />

@@ -17,8 +17,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from '@/components/ui/sidebar';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const diseases = ['Malaria', 'Dengue', 'Diarrhoea'] as const;
 const climateOptions = [
   { id: 'Temperature', label: 'Temperature' },
   { id: 'Rainfall', label: 'Rainfall' },
@@ -30,7 +30,13 @@ export function InsightsGenerator() {
   const [isLoading, setIsLoading] = useState(false);
   const [generatedSummary, setGeneratedSummary] = useState<string | null>(null);
   const { toast } = useToast();
-  const { selectedRegion, availableRegions } = useDashboardContext();
+  const { 
+    selectedRegion, 
+    availableRegions, 
+    availableDiseases, 
+    dataLoading, 
+    dataError 
+  } = useDashboardContext();
 
   const form = useForm<InsightsFormValues>({
     resolver: zodResolver(insightsFormSchema),
@@ -46,7 +52,10 @@ export function InsightsGenerator() {
     if (selectedRegion && form.getValues('region') !== selectedRegion) {
       form.setValue('region', selectedRegion);
     }
-  }, [selectedRegion, form]);
+     if (!form.getValues('disease') && availableDiseases.length > 0) {
+      form.setValue('disease', availableDiseases[0]);
+    }
+  }, [selectedRegion, form, availableDiseases]);
 
   async function onSubmit(values: InsightsFormValues) {
     setIsLoading(true);
@@ -59,7 +68,6 @@ export function InsightsGenerator() {
     if (result.success && result.data) {
       setGeneratedSummary(result.data.summary);
       toast({ title: 'Insights Generated!', description: 'The AI summary is now available.', variant: 'default' });
-      // form.reset(); // Optionally reset form on success - Keep form values for now
     } else {
       if (result.fieldErrors) {
          Object.entries(result.fieldErrors).forEach(([field, errors]) => {
@@ -75,6 +83,48 @@ export function InsightsGenerator() {
       });
     }
   }
+
+  if (dataLoading) {
+    return (
+      <SidebarGroup>
+        <SidebarGroupLabel className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5" />
+          AI-Powered Insights
+        </SidebarGroupLabel>
+        <SidebarGroupContent className="group-data-[collapsible=icon]:hidden">
+          <div className="p-4 space-y-3">
+            <Skeleton className="h-6 w-1/2" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-6 w-1/2" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full mt-4" />
+            <p className="text-xs text-center text-muted-foreground">Loading AI insights generator...</p>
+          </div>
+        </SidebarGroupContent>
+         <SidebarGroupContent className="group-data-[collapsible=icon]:not-hidden hidden justify-center p-2">
+           <Sparkles className="h-6 w-6 text-sidebar-foreground" />
+        </SidebarGroupContent>
+      </SidebarGroup>
+    );
+  }
+
+  if (dataError) {
+    return (
+      <SidebarGroup>
+        <SidebarGroupLabel className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5" />
+          AI-Powered Insights
+        </SidebarGroupLabel>
+        <SidebarGroupContent className="group-data-[collapsible=icon]:hidden">
+          <p className="p-4 text-xs text-center text-destructive">Error loading insights generator: {dataError}</p>
+        </SidebarGroupContent>
+        <SidebarGroupContent className="group-data-[collapsible=icon]:not-hidden hidden justify-center p-2">
+           <Sparkles className="h-6 w-6 text-destructive" />
+        </SidebarGroupContent>
+      </SidebarGroup>
+    )
+  }
+
 
   return (
     <SidebarGroup>
@@ -92,12 +142,9 @@ export function InsightsGenerator() {
                 <FormItem>
                   <FormLabel>Region</FormLabel>
                    <Select 
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        // Optionally, also update context if this select should drive chart filtering too
-                        // setSelectedRegion(value); 
-                      }} 
+                      onValueChange={field.onChange} 
                       value={field.value}
+                      disabled={availableRegions.length === 0}
                     >
                     <FormControl>
                       <SelectTrigger>
@@ -105,38 +152,13 @@ export function InsightsGenerator() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {availableRegions.length > 0 ? (
-                        availableRegions.map((regionName) => (
-                          <SelectItem key={regionName} value={regionName}>
-                            {regionName}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="loading" disabled>Loading regions...</SelectItem>
-                      )}
-                       {/* Allow typing a custom region if not in list */}
-                       {field.value && !availableRegions.includes(field.value) && (
-                          <SelectItem value={field.value} disabled>
-                            {field.value} (Custom)
-                          </SelectItem>
-                        )}
+                      {availableRegions.map((regionName) => (
+                        <SelectItem key={regionName} value={regionName}>
+                          {regionName}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    Select a region or type a custom one below if not listed.
-                  </FormDescription>
-                  <FormControl>
-                     {/* Hidden input to allow custom values if needed, or rely on Select's creatable features if available/added */}
-                    <Input 
-                      placeholder="Or type custom region (e.g., District)" 
-                      {...field} 
-                      onChange={(e) => {
-                        field.onChange(e.target.value);
-                         // If user types, clear any select-driven context update or ensure sync
-                      }}
-                      className="mt-1" // Add some space if both are visible
-                    />
-                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -162,14 +184,14 @@ export function InsightsGenerator() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Disease</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                  <Select onValueChange={field.onChange} value={field.value || undefined} disabled={availableDiseases.length === 0}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a disease" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {diseases.map((disease) => (
+                      {availableDiseases.map((disease) => (
                         <SelectItem key={disease} value={disease}>
                           {disease}
                         </SelectItem>
@@ -222,7 +244,7 @@ export function InsightsGenerator() {
               )}
             />
             
-            <Button type="submit" disabled={isLoading} className="w-full">
+            <Button type="submit" disabled={isLoading || dataLoading} className="w-full">
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -248,6 +270,9 @@ export function InsightsGenerator() {
             </CardContent>
           </Card>
         )}
+      </SidebarGroupContent>
+       <SidebarGroupContent className="group-data-[collapsible=icon]:not-hidden hidden justify-center p-2">
+         <Sparkles className="h-6 w-6 text-sidebar-foreground" />
       </SidebarGroupContent>
     </SidebarGroup>
   );

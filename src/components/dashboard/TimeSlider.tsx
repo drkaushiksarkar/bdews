@@ -2,24 +2,36 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { CalendarClock } from 'lucide-react';
 import { SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from '@/components/ui/sidebar';
 import { useDashboardContext } from '@/context/DashboardContext';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 export function TimeSlider() {
-  const { selectedYear, setSelectedYear } = useDashboardContext();
+  const { selectedYear, setSelectedYear, dataLoading, dataError } = useDashboardContext();
   const [isMounted, setIsMounted] = useState(false);
+  const [sliderValue, setSliderValue] = useState<number>(new Date().getFullYear());
 
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+    if (selectedYear !== undefined) {
+      setSliderValue(selectedYear);
+    }
+  }, [selectedYear]);
+
+  const handleSliderChange = (value: number[]) => {
+    setSliderValue(value[0]);
+  };
+
+  const handleSliderCommit = (value: number[]) => {
+    setSelectedYear(value[0]);
+  };
 
 
-  if (!isMounted || selectedYear === undefined) {
+  if (!isMounted || dataLoading) {
     return (
       <SidebarGroup>
         <SidebarGroupLabel className="flex items-center gap-2">
@@ -30,20 +42,40 @@ export function TimeSlider() {
           <div className="p-4 space-y-4 group-data-[collapsible=icon]:hidden">
             <div className="flex justify-between items-center">
                 <Label htmlFor="time-slider-loading" className="text-sm font-medium">Selected Year:</Label>
-                <div className="h-5 w-12 bg-muted rounded animate-pulse"></div>
+                <Skeleton className="h-5 w-12" />
             </div>
-            <div className="h-5 w-full bg-muted rounded animate-pulse"></div>
-            <CardDescription className="text-xs text-center">
+            <Skeleton className="h-5 w-full" />
+            <p className="text-xs text-center text-muted-foreground">
                 Loading time forecast options...
-            </CardDescription>
+            </p>
           </div>
            <div className="p-2 space-y-2 group-data-[collapsible=icon]:not-hidden hidden justify-center">
-            <div className="h-6 w-6 bg-muted rounded animate-pulse mx-auto"></div>
+            <Skeleton className="h-6 w-6" />
           </div>
         </SidebarGroupContent>
       </SidebarGroup>
     );
   }
+
+  if (dataError) {
+     return (
+      <SidebarGroup>
+        <SidebarGroupLabel className="flex items-center gap-2">
+          <CalendarClock className="h-5 w-5" />
+          Time Forecast
+        </SidebarGroupLabel>
+        <SidebarGroupContent className="group-data-[collapsible=icon]:hidden">
+          <div className="p-4">
+            <p className="text-xs text-center text-destructive">Error loading time options.</p>
+          </div>
+        </SidebarGroupContent>
+         <SidebarGroupContent className="group-data-[collapsible=icon]:not-hidden hidden justify-center p-2">
+           <CalendarClock className="h-6 w-6 text-destructive" />
+        </SidebarGroupContent>
+      </SidebarGroup>
+    );
+  }
+
 
   return (
     <SidebarGroup>
@@ -55,20 +87,21 @@ export function TimeSlider() {
         <div className="p-4 space-y-4">
           <div className="flex justify-between items-center">
             <Label htmlFor="time-slider" className="text-sm font-medium">Selected Year:</Label>
-            <span className="text-sm font-bold text-primary">{selectedYear}</span>
+            <span className="text-sm font-bold text-primary">{sliderValue}</span>
           </div>
           <Slider
             id="time-slider"
-            min={2000}
-            max={2050}
+            min={2021} // Min year from dummy data
+            max={2023} // Max year from dummy data (actuals) + some forecast years
             step={1}
-            defaultValue={[selectedYear]}
-            onValueChange={(value) => setSelectedYear(value[0])}
+            value={[sliderValue]}
+            onValueChange={handleSliderChange}
+            onValueCommit={handleSliderCommit} // Use onValueCommit to update context only when interaction ends
             className="w-full"
           />
-          <CardDescription className="text-xs text-center">
+          <p className="text-xs text-center text-muted-foreground">
             Adjust slider to view historical and predicted data.
-          </CardDescription>
+          </p>
         </div>
       </SidebarGroupContent>
        <SidebarGroupContent className="group-data-[collapsible=icon]:not-hidden hidden justify-center p-2">

@@ -1,7 +1,6 @@
 
 'use client';
 
-import { useEffect } from 'react';
 import { Globe } from 'lucide-react';
 import { useDashboardContext } from '@/context/DashboardContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -12,10 +11,12 @@ export function RegionSelector() {
   const { 
     selectedRegion, 
     setSelectedRegion, 
-    availableRegions 
+    availableRegions,
+    dataLoading,
+    dataError
   } = useDashboardContext();
 
-  if (!availableRegions.length) {
+  if (dataLoading) {
     return (
       <SidebarGroup>
         <SidebarGroupLabel className="flex items-center gap-2">
@@ -35,6 +36,28 @@ export function RegionSelector() {
     );
   }
 
+  if (dataError || !availableRegions.length) {
+     return (
+      <SidebarGroup>
+        <SidebarGroupLabel className="flex items-center gap-2">
+          <Globe className="h-5 w-5" />
+          Region
+        </SidebarGroupLabel>
+        <SidebarGroupContent className="group-data-[collapsible=icon]:hidden">
+          <div className="p-4">
+            <p className="text-xs text-center text-destructive">
+              {dataError ? "Error loading regions." : "No regions available."}
+            </p>
+          </div>
+        </SidebarGroupContent>
+         <SidebarGroupContent className="group-data-[collapsible=icon]:not-hidden hidden justify-center p-2">
+           <Globe className="h-6 w-6 text-destructive" />
+        </SidebarGroupContent>
+      </SidebarGroup>
+    );
+  }
+
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel className="flex items-center gap-2">
@@ -46,6 +69,7 @@ export function RegionSelector() {
           <Select
             value={selectedRegion || ''}
             onValueChange={(value) => setSelectedRegion(value || undefined)}
+            disabled={availableRegions.length === 0}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select a region" />
