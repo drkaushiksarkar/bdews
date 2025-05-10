@@ -9,7 +9,7 @@ import { RegionalInfoPanel } from '@/components/dashboard/RegionalInfoPanel';
 import { InsightsGenerator } from '@/components/dashboard/InsightsGenerator';
 import { RegionSelector } from '@/components/dashboard/RegionSelector'; 
 import { DiseaseSelector } from '@/components/dashboard/DiseaseSelector';
-import { FoliumMapPlaceholder } from '@/components/dashboard/FoliumMapPlaceholder'; // Added
+import { FoliumMapPlaceholder } from '@/components/dashboard/FoliumMapPlaceholder';
 import { SidebarSeparator } from '@/components/ui/sidebar';
 import { DashboardProvider } from '@/context/DashboardContext';
 
@@ -32,9 +32,15 @@ function DashboardContent() {
   const mainContent = (
     <>
       <AppHeader />
-      <main className="flex-1 p-6 space-y-6 overflow-auto">
-        <InteractiveMap />
-        <FoliumMapPlaceholder /> 
+      <main className="flex-1 p-6 flex flex-col space-y-6 overflow-auto">
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex-1 min-w-0">
+            <InteractiveMap />
+          </div>
+          <div className="flex-1 min-w-0">
+            <FoliumMapPlaceholder />
+          </div>
+        </div>
         <RegionalInfoPanel />
       </main>
     </>
