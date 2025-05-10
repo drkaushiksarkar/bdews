@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -5,13 +6,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useDashboardContext } from '@/context/DashboardContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MapPin, AlertCircle } from 'lucide-react';
+import type { Disease, ForecastDataPoint } from '@/context/DashboardContext';
+
 
 export function InteractiveMap() {
   const { 
     selectedRegion, 
     selectedDisease, 
-    selectedYear, 
-    anomalyData, 
+    // selectedYear, // No longer directly used for hotspot calculation logic
+    forecastData, 
     regionMetadata,
     dataLoading,
     dataError 
@@ -20,42 +23,74 @@ export function InteractiveMap() {
   const [mapUrl, setMapUrl] = useState('https://maps.google.com/maps?q=0,0&hl=en&z=2&t=k&output=embed');
   const [currentHotspots, setCurrentHotspots] = useState<string[]>([]);
 
-  const hotspotRegions = useMemo(() => {
-    if (!anomalyData || !selectedDisease || !selectedYear || !regionMetadata) {
+  const forecastBasedHotspotRegions = useMemo(() => {
+    if (!forecastData || !selectedDisease || !regionMetadata) {
       return [];
     }
-    
-    const hotspots: string[] = [];
-    const yearStr = selectedYear.toString();
 
-    for (const regionName in anomalyData) {
-      if (anomalyData[regionName] && anomalyData[regionName][selectedDisease]) {
-        const hasAnomaly = anomalyData[regionName][selectedDisease].some(
-          (entry) => entry.date.endsWith(yearStr) && entry.isAnomaly
-        );
-        // We also need to ensure metadata exists to be able to plot it
-        if (hasAnomaly && regionMetadata[regionName]) {
-          hotspots.push(regionName);
+    const regionForecasts: { name: string; totalForecast: number }[] = [];
+
+    for (const regionName in forecastData) {
+      if (Object.prototype.hasOwnProperty.call(forecastData, regionName) &&
+          regionMetadata[regionName] && // Ensure metadata exists for potential plotting
+          forecastData[regionName]?.[selectedDisease]) {
+            
+        const diseaseData: ForecastDataPoint[] = forecastData[regionName][selectedDisease];
+        let currentRegionTotalForecast = 0;
+        
+        diseaseData.forEach(dp => {
+          // Sum forecast values (dp.actual is null for forecasts)
+          if (dp.forecast !== null && typeof dp.forecast === 'number') {
+            currentRegionTotalForecast += dp.forecast;
+          }
+        });
+
+        if (currentRegionTotalForecast > 0) {
+          regionForecasts.push({ name: regionName, totalForecast: currentRegionTotalForecast });
         }
       }
     }
+
+    if (regionForecasts.length === 0) {
+      return [];
+    }
+
+    // Sort regions by total forecast in descending order
+    regionForecasts.sort((a, b) => b.totalForecast - a.totalForecast);
+
+    const overallTotalForecast = regionForecasts.reduce((sum, region) => sum + region.totalForecast, 0);
+    if (overallTotalForecast <= 0) { // Avoid division by zero or if all forecasts are non-positive
+        return [];
+    }
+
+    const targetForecastSum = overallTotalForecast * 0.80;
+    let cumulativeForecast = 0;
+    const hotspots: string[] = [];
+
+    for (const region of regionForecasts) {
+      hotspots.push(region.name);
+      cumulativeForecast += region.totalForecast;
+      if (cumulativeForecast >= targetForecastSum) { 
+        break;
+      }
+    }
     return hotspots;
-  }, [anomalyData, selectedDisease, selectedYear, regionMetadata]);
+  }, [forecastData, selectedDisease, regionMetadata]);
 
   useEffect(() => {
-    setCurrentHotspots(hotspotRegions);
+    setCurrentHotspots(forecastBasedHotspotRegions);
     
     if (!regionMetadata) {
-      // Metadata might still be loading or there was an error fetching it.
-      // Don't attempt to construct a new map URL without it.
-      // The map will either show its default or the previously set URL.
       return;
     }
 
     let query = '';
     let zoomLevel = 2;
 
-    const validHotspotPlotData = hotspotRegions
+    // Use forecastBasedHotspotRegions to determine what to plot
+    const plotDataRegions = forecastBasedHotspotRegions;
+
+    const validPlotData = plotDataRegions
       .map(regionName => {
         const meta = regionMetadata[regionName];
         if (meta && typeof meta.latitude === 'number' && typeof meta.longitude === 'number') {
@@ -66,60 +101,53 @@ export function InteractiveMap() {
             queryString: `${meta.latitude},${meta.longitude}(${encodeURIComponent(regionName)})`
           };
         }
-        console.warn(`InteractiveMap: Missing or invalid (lat/lon not numbers) metadata for hotspot region: ${regionName}. Latitude: ${meta?.latitude}, Longitude: ${meta?.longitude}`);
+        console.warn(`InteractiveMap: Missing or invalid metadata for hotspot region: ${regionName}. Latitude: ${meta?.latitude}, Longitude: ${meta?.longitude}`);
         return null; 
       })
-      .filter(Boolean);
+      .filter(item => item !== null) as { name: string; lat: number; lon: number; queryString: string }[];
 
-    if (validHotspotPlotData.length > 0) {
-      query = validHotspotPlotData.map(h => h!.queryString).join('|');
-      zoomLevel = 6; // Default zoom for multiple hotspots
 
-      const selectedRegionIsHotspot = selectedRegion && validHotspotPlotData.find(h => h!.name === selectedRegion);
+    if (validPlotData.length > 0) {
+      // Prioritize selected region if it's part of the plot data (either a hotspot or explicitly selected)
+      const selectedRegionInPlotData = selectedRegion && validPlotData.find(h => h.name === selectedRegion);
 
-      if (selectedRegionIsHotspot) {
-        // Prioritize selected region if it's a hotspot
-        const selectedQuery = selectedRegionIsHotspot.queryString;
-        const otherQueries = validHotspotPlotData
-          .filter(h => h!.name !== selectedRegion)
-          .map(h => h!.queryString);
+      if (selectedRegionInPlotData) {
+        const selectedQuery = selectedRegionInPlotData.queryString;
+        const otherQueries = validPlotData
+          .filter(h => h.name !== selectedRegion)
+          .map(h => h.queryString);
         query = [selectedQuery, ...otherQueries].join('|');
-        zoomLevel = 8;
-      } else if (validHotspotPlotData.length === 1) {
-        // If only one valid hotspot, zoom in on it (query is already just that one)
-        zoomLevel = 8;
+        zoomLevel = 8; // Zoom in more if selected region is primary focus
+      } else {
+        query = validPlotData.map(h => h.queryString).join('|');
+        zoomLevel = validPlotData.length === 1 ? 8 : 6; // Zoom more for single item, less for multiple
       }
     } else if (selectedRegion && regionMetadata[selectedRegion]) {
-      // No valid hotspots to plot, but a region is selected
+      // No hotspots, but a region is selected
       const meta = regionMetadata[selectedRegion];
       if (typeof meta.latitude === 'number' && typeof meta.longitude === 'number') {
         query = `${meta.latitude},${meta.longitude}(${encodeURIComponent(selectedRegion)})`;
         zoomLevel = 8;
       } else {
         console.warn(`InteractiveMap: Missing or invalid metadata for selected region: ${selectedRegion}`);
-        query = '0,0'; // Fallback
+        query = '0,0'; 
         zoomLevel = 2;
       }
     } else {
-      // Default global view if no hotspots and no selected region with valid meta
+      // Default global view
       query = '0,0';
       zoomLevel = 2;
     }
     
-    if (!query.trim()) { // Final safety net for empty query
+    if (!query.trim()) { 
         query = '0,0';
         zoomLevel = 2;
     }
     
-    // Ensure the 'q' parameter contains the locations. Labels are already URI encoded.
-    // Do not encode the entire 'query' string here, as it contains special characters like '|', '(', ')', ','
-    // which are part of the Google Maps query syntax.
     const newMapUrl = `https://maps.google.com/maps?q=${query}&hl=en&z=${zoomLevel}&t=k&output=embed`;
-    
-    // console.log("Setting map URL:", newMapUrl); // For debugging
     setMapUrl(newMapUrl);
 
-  }, [selectedRegion, selectedDisease, selectedYear, anomalyData, regionMetadata, hotspotRegions]);
+  }, [selectedRegion, regionMetadata, forecastBasedHotspotRegions]);
 
 
   if (dataLoading) {
@@ -150,21 +178,42 @@ export function InteractiveMap() {
     );
   }
 
+  let descriptionText = "Select a disease to identify forecast hotspots.";
+  if (selectedDisease) {
+    if (currentHotspots.length > 0) {
+      descriptionText = `Forecast Hotspots for ${selectedDisease} (top ~80% contributors): ${currentHotspots.join(', ')}.`;
+    } else {
+      descriptionText = `No significant forecast hotspots identified for ${selectedDisease} based on the 80% contribution rule, or insufficient forecast data.`;
+    }
+  }
+  
+  if (selectedRegion) {
+      if (selectedDisease && currentHotspots.includes(selectedRegion)) {
+         // Already mentions hotspots, add that this region is one
+         // descriptionText = descriptionText.replace('.', `, with ${selectedRegion} being a key area.`);
+      } else if (selectedDisease && currentHotspots.length > 0 && !currentHotspots.includes(selectedRegion)){
+          descriptionText += ` Map currently focused on ${selectedRegion}.`;
+      } else if (!selectedDisease) {
+          descriptionText = `Displaying ${selectedRegion}. Select a disease to identify hotspots.`;
+      } else { // selectedDisease but no hotspots, and selectedRegion
+          descriptionText += ` Map currently focused on ${selectedRegion}.`;
+      }
+  } else if (!selectedDisease) { // No region, no disease
+      descriptionText = "Select filters to view specific regions or disease hotspots.";
+  }
+
+
   return (
     <Card className="shadow-lg flex-1">
       <CardHeader>
         <CardTitle className="text-xl flex items-center gap-2"><MapPin /> Interactive Geospatial Map</CardTitle>
         <CardDescription>
-          {currentHotspots.length > 0 
-            ? `Displaying hotspots for ${selectedDisease || 'selected disease'} in ${selectedYear || 'selected year'}: ${currentHotspots.join(', ')}.`
-            : selectedRegion 
-              ? `Displaying ${selectedRegion}. No specific hotspots identified for the current filters.`
-              : "Select filters to view specific regions or hotspots."}
+          {descriptionText}
         </CardDescription>
       </CardHeader>
       <CardContent className="aspect-[16/9] relative p-0">
         <iframe
-          key={mapUrl} // Force re-render of iframe when URL changes
+          key={mapUrl} 
           src={mapUrl}
           width="100%"
           height="100%"
