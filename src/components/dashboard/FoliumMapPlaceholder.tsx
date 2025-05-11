@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Map } from 'lucide-react'; // Changed icon for variety
 
 export function FoliumMapPlaceholder() {
-  const foliumMapUrl = "/data/folium_maps/sample_map.html"; // Path to the sample HTML map
+  const foliumMapUrl = "/data/folium_maps/malaria_map.html"; // Path to the sample HTML map
 
   return (
     <Card className="shadow-lg flex-1">

@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
@@ -20,10 +19,10 @@ export interface KpiDataItem {
 export interface WeatherCondition {
   value: number;
   unit: string;
-  forecast?: string; // General forecast string for temperature
-  forecast_24h_prob?: number; // Specific for rainfall
-  description?: string; // Specific for rainfall
-  comfort_level?: string; // Specific for humidity
+  forecast?: string;
+  forecast_24h_prob?: number;
+  description?: string;
+  comfort_level?: string;
   source: string;
 }
 export interface WeatherDataItem {
@@ -37,7 +36,6 @@ export type RegionKpiData = Record<string, Record<Disease, KpiDataItem>>;
 export type RegionMetadata = Record<string, RegionMetadataItem>;
 export type RegionWeatherData = Record<string, WeatherDataItem>;
 
-
 interface DashboardContextProps {
   selectedYear: number | undefined;
   setSelectedYear: Dispatch<SetStateAction<number | undefined>>;
@@ -48,7 +46,6 @@ interface DashboardContextProps {
   selectedDisease: Disease | undefined;
   setSelectedDisease: Dispatch<SetStateAction<Disease | undefined>>;
   availableDiseases: readonly Disease[];
-  
   stlData: RegionDiseaseData<StlDataPoint> | null;
   forecastData: RegionDiseaseData<ForecastDataPoint> | null;
   anomalyData: RegionDiseaseData<AnomalyDataPoint> | null;
@@ -62,11 +59,11 @@ interface DashboardContextProps {
 const DashboardContext = createContext<DashboardContextProps | undefined>(undefined);
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
-  const [selectedYear, setSelectedYear] = useState<number | undefined>(new Date().getFullYear()); // Default to current year
+  const [selectedYear, setSelectedYear] = useState<number | undefined>(new Date().getFullYear());
   const [selectedRegion, setSelectedRegion] = useState<string | undefined>(undefined);
   const [availableRegions, setAvailableRegions] = useState<string[]>([]);
   const [selectedDisease, setSelectedDisease] = useState<Disease | undefined>(undefined);
-  
+
   const [stlData, setStlData] = useState<RegionDiseaseData<StlDataPoint> | null>(null);
   const [forecastData, setForecastData] = useState<RegionDiseaseData<ForecastDataPoint> | null>(null);
   const [anomalyData, setAnomalyData] = useState<RegionDiseaseData<AnomalyDataPoint> | null>(null);
@@ -75,12 +72,12 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [weatherData, setWeatherData] = useState<RegionWeatherData | null>(null);
   const [dataLoading, setDataLoading] = useState<boolean>(true);
   const [dataError, setDataError] = useState<string | null>(null);
-  
+
   const availableDiseases = diseases;
 
   useEffect(() => {
     // Set initial year on mount
-     setSelectedYear(2023); // Dummy data exists for this year
+    setSelectedYear(2023);
   }, []);
 
   useEffect(() => {
@@ -89,19 +86,19 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       setDataError(null);
       try {
         const [
-          stlResponse, 
-          forecastResponse, 
-          anomalyResponse, 
-          regionMetaResponse, 
+          stlResponse,
+          forecastResponse,
+          anomalyResponse,
+          regionMetaResponse,
           kpiResponse,
-          weatherResponse
+          // CHANGED: removed weatherResponse from Promise.all()
         ] = await Promise.all([
           fetch('/data/stl-decomposition-data.json'),
           fetch('/data/time-series-forecast-data.json'),
           fetch('/data/anomaly-detection-data.json'),
           fetch('/data/region-metadata.json'),
           fetch('/data/kpi-data.json'),
-          fetch('/data/weather-data.json'),
+          // CHANGED: no fetch('/data/weather-data.json')
         ]);
 
         if (!stlResponse.ok) throw new Error(`Failed to fetch STL data: ${stlResponse.statusText}`);
@@ -109,23 +106,20 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         if (!anomalyResponse.ok) throw new Error(`Failed to fetch anomaly data: ${anomalyResponse.statusText}`);
         if (!regionMetaResponse.ok) throw new Error(`Failed to fetch region metadata: ${regionMetaResponse.statusText}`);
         if (!kpiResponse.ok) throw new Error(`Failed to fetch KPI data: ${kpiResponse.statusText}`);
-        if (!weatherResponse.ok) throw new Error(`Failed to fetch weather data: ${weatherResponse.statusText}`);
-
 
         const stlJson: RegionDiseaseData<StlDataPoint> = await stlResponse.json();
         const forecastJson: RegionDiseaseData<ForecastDataPoint> = await forecastResponse.json();
         const anomalyJson: RegionDiseaseData<AnomalyDataPoint> = await anomalyResponse.json();
         const regionMetaJson: RegionMetadata = await regionMetaResponse.json();
         const kpiJson: RegionKpiData = await kpiResponse.json();
-        const weatherJson: RegionWeatherData = await weatherResponse.json();
-        
+
         setStlData(stlJson);
-        
+
         const processedForecastJson: RegionDiseaseData<ForecastDataPoint> = {};
         for (const region in forecastJson) {
           processedForecastJson[region] = {} as Record<Disease, ForecastDataPoint[]>;
           for (const disease in forecastJson[region]) {
-             processedForecastJson[region][disease as Disease] = forecastJson[region][disease as Disease].map((item: any) => ({
+            processedForecastJson[region][disease as Disease] = forecastJson[region][disease as Disease].map((item: any) => ({
               ...item,
               confidenceLower: item.confidence ? item.confidence[0] : null,
               confidenceUpper: item.confidence ? item.confidence[1] : null,
@@ -136,7 +130,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         setAnomalyData(anomalyJson);
         setRegionMetadata(regionMetaJson);
         setKpiData(kpiJson);
-        setWeatherData(weatherJson);
+        // CHANGED: weatherData is now populated in its own effect
 
         const regions = Object.keys(regionMetaJson);
         setAvailableRegions(regions);
@@ -152,8 +146,73 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       }
     }
     fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // --- ADDED: fetch current + forecast + daily max/min for the three cards ---
+  useEffect(() => {
+    if (!regionMetadata || !selectedRegion) return;
+
+    setDataLoading(true);
+    setDataError(null);
+
+    const { latitude, longitude } = regionMetadata[selectedRegion];
+    const url = `https://api.open-meteo.com/v1/forecast`
+      + `?latitude=${latitude}&longitude=${longitude}`
+      + `&current=temperature_2m,rain,relative_humidity_2m`
+      + `&hourly=temperature_2m,rain,relative_humidity_2m`      // ADDED: hourly arrays for forecast
+      + `&daily=temperature_2m_max,temperature_2m_min`;        // ADDED: daily max/min
+
+    fetch(url)
+      .then(res => {
+        if (!res.ok) throw new Error(res.statusText);
+        return res.json();
+      })
+      .then(data => {
+        const c = data.current;
+        const h = data.hourly;
+        const d = data.daily;
+
+        // pick 1-hour-ahead forecast from hourly arrays
+        const tempForecast = h.temperature_2m[1];
+        const rainForecast = h.rain[1];
+        const humidityForecast = h.relative_humidity_2m[1];
+
+        // today’s daily max/min
+        const maxTemp = d.temperature_2m_max[0];
+        const minTemp = d.temperature_2m_min[0];
+
+        setWeatherData({
+          [selectedRegion]: {
+            temperature: {
+              value: c.temperature_2m,
+              unit: '°C',
+              description: `Min: ${minTemp}°C, Max: ${maxTemp}°C`,          // ADDED
+              forecast: `${tempForecast}°C in 1h`,                          // ADDED
+              source: 'Open-Meteo'
+            },
+            rainfall: {
+              value: c.rain,
+              unit: 'mm/h',
+              forecast: `${rainForecast} mm/h in 1h`,                       // ADDED
+              source: 'Open-Meteo'
+            },
+            humidity: {
+              value: c.relative_humidity_2m,
+              unit: '%',
+              forecast: `${humidityForecast}% in 1h`,                       // ADDED
+              source: 'Open-Meteo'
+            }
+          }
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        setDataError(err.message);
+      })
+      .finally(() => setDataLoading(false));
+  }, [regionMetadata, selectedRegion]);
+  // --- end of ADDED effect ---
 
   useEffect(() => {
     if (availableRegions.length > 0 && !selectedRegion) {
@@ -167,9 +226,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     }
   }, [availableDiseases, selectedDisease, setSelectedDisease]);
 
-
   return (
-    <DashboardContext.Provider value={{ 
+    <DashboardContext.Provider value={{
       selectedYear, setSelectedYear,
       selectedRegion, setSelectedRegion,
       availableRegions, setAvailableRegions,
